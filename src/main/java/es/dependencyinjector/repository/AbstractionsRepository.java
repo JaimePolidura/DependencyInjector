@@ -1,6 +1,6 @@
-package es.jaimetruman.repository;
+package es.dependencyinjector.repository;
 
-import es.jaimetruman.exceptions.DuplicatedImplementation;
+import es.dependencyinjector.exceptions.DuplicatedImplementation;
 
 public interface AbstractionsRepository {
     void add(Class<?> abstraction, Class<?> implementation) throws DuplicatedImplementation;

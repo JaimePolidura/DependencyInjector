@@ -1,6 +1,6 @@
 package es.jaime.test.abstractions;
 
-import es.jaimetruman.annotations.Service;
+import es.dependencyinjector.annotations.Service;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

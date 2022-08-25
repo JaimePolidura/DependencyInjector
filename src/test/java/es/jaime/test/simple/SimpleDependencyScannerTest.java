@@ -1,8 +1,8 @@
 package es.jaime.test.simple;
 
-import es.jaimetruman.DependencyInjectorBootstrapper;
-import es.jaimetruman.repository.InMemoryDependenciesRepository;
-import es.jaimetruman.DependencyInjectorConfiguration;
+import es.dependencyinjector.DependencyInjectorBootstrapper;
+import es.dependencyinjector.repository.InMemoryDependenciesRepository;
+import es.dependencyinjector.DependencyInjectorConfiguration;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

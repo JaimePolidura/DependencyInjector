@@ -1,10 +1,10 @@
-package es.jaimetruman;
+package es.dependencyinjector;
 
-import es.jaimetruman.annotations.*;
-import es.jaimetruman.repository.AbstractionsRepository;
-import es.jaimetruman.repository.DependenciesRepository;
-import es.jaimetruman.repository.InMemoryAbstractionsRepository;
-import es.jaimetruman.repository.InMemoryDependenciesRepository;
+import es.dependencyinjector.annotations.*;
+import es.dependencyinjector.repository.AbstractionsRepository;
+import es.dependencyinjector.repository.DependenciesRepository;
+import es.dependencyinjector.repository.InMemoryAbstractionsRepository;
+import es.dependencyinjector.repository.InMemoryDependenciesRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;

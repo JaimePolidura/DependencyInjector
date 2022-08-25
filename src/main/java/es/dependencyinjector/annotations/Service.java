@@ -1,4 +1,4 @@
-package es.jaimetruman.annotations;
+package es.dependencyinjector.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

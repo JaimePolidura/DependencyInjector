@@ -1,9 +1,9 @@
 package es.jaime.test.abstractions;
 
-import es.jaimetruman.DependencyInjectorBootstrapper;
-import es.jaimetruman.repository.InMemoryAbstractionsRepository;
-import es.jaimetruman.repository.InMemoryDependenciesRepository;
-import es.jaimetruman.DependencyInjectorConfiguration;
+import es.dependencyinjector.DependencyInjectorBootstrapper;
+import es.dependencyinjector.repository.InMemoryAbstractionsRepository;
+import es.dependencyinjector.repository.InMemoryDependenciesRepository;
+import es.dependencyinjector.DependencyInjectorConfiguration;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 

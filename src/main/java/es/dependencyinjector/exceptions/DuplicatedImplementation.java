@@ -1,4 +1,4 @@
-package es.jaimetruman.exceptions;
+package es.dependencyinjector.exceptions;
 
 public final class DuplicatedImplementation extends Exception{
     public DuplicatedImplementation(String message, Object... args) {

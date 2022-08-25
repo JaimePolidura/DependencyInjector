@@ -1,7 +1,6 @@
-package es.jaimetruman.repository;
+package es.dependencyinjector.repository;
 
-import es.jaimetruman.exceptions.DuplicatedImplementation;
-import es.jaimetruman.repository.AbstractionsRepository;
+import es.dependencyinjector.exceptions.DuplicatedImplementation;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

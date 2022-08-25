@@ -1,4 +1,4 @@
-package es.jaimetruman.utils;
+package es.dependencyinjector.utils;
 
 public final class Utils {
     public static void runCheckedOrTerminate(CheckedRunnable checkedRunnable) {

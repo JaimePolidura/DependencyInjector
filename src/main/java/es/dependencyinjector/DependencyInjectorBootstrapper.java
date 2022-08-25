@@ -1,7 +1,7 @@
-package es.jaimetruman;
+package es.dependencyinjector;
 
-import es.jaimetruman.repository.AbstractionsRepository;
-import es.jaimetruman.repository.DependenciesRepository;
+import es.dependencyinjector.repository.AbstractionsRepository;
+import es.dependencyinjector.repository.DependenciesRepository;
 
 public final class DependencyInjectorBootstrapper {
     private final DependencyInjectorConfiguration configuration;

@@ -1,9 +1,9 @@
-package es.jaimetruman;
+package es.dependencyinjector;
 
-import es.jaimetruman.exceptions.UnknownDependency;
-import es.jaimetruman.repository.AbstractionsRepository;
-import es.jaimetruman.repository.DependenciesRepository;
-import es.jaimetruman.utils.ReflectionUtils;
+import es.dependencyinjector.exceptions.UnknownDependency;
+import es.dependencyinjector.repository.AbstractionsRepository;
+import es.dependencyinjector.repository.DependenciesRepository;
+import es.dependencyinjector.utils.ReflectionUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
@@ -16,8 +16,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static es.jaimetruman.utils.ReflectionUtils.*;
-import static es.jaimetruman.utils.Utils.*;
+import static es.dependencyinjector.utils.ReflectionUtils.*;
+import static es.dependencyinjector.utils.Utils.*;
 
 public final class DependencyInjectorScanner {
     private final DependenciesRepository dependencies;

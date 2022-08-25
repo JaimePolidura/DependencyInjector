@@ -1,4 +1,4 @@
-package es.jaimetruman.annotations;
+package es.dependencyinjector.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface UseCase {
+public @interface EventHandler {
 }

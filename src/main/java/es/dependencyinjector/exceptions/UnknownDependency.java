@@ -1,4 +1,4 @@
-package es.jaimetruman.exceptions;
+package es.dependencyinjector.exceptions;
 
 public final class UnknownDependency extends Exception{
     public UnknownDependency(String message, Object... args) {
