@@ -1,35 +1,29 @@
 package es.jaime.test.abstractions;
 
-import es.jaimetruman.InMemoryAbstractionsRepository;
-import es.jaimetruman.InMemoryDependenciesRepository;
-import es.jaimetruman.DependencyInjectorScanner;
-import es.jaimetruman.DependencyInjectorScannerConfiguration;
+import es.jaimetruman.DependencyInjectorBootstrapper;
+import es.jaimetruman.repository.InMemoryAbstractionsRepository;
+import es.jaimetruman.repository.InMemoryDependenciesRepository;
+import es.jaimetruman.DependencyInjectorConfiguration;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
 public final class AbstractionsDependencyInjectorTest {
     @Test
+    @SneakyThrows
     public void shouldScan() {
-        InMemoryDependenciesRepository repostitory = new InMemoryDependenciesRepository();
+        InMemoryDependenciesRepository dependenciesRepository = new InMemoryDependenciesRepository();
         InMemoryAbstractionsRepository abstractionsRepository = new InMemoryAbstractionsRepository();
-        DependencyInjectorScanner scanner = new DependencyInjectorScanner(
-                repostitory,
-                abstractionsRepository,
-                new Configuration()
-        );
-        scanner.start();
+        DependencyInjectorBootstrapper.init(DependencyInjectorConfiguration.builder()
+                        .packageToScan("es.jaime.test")
+                        .dependenciesRepository(dependenciesRepository)
+                        .abstractionsRepository(abstractionsRepository)
+                .build());
 
-        assertThat(repostitory.get(ServiceA.class)).isNotNull();
-        assertThat(repostitory.get(ServiceB.class)).isNotNull();
-        assertThat(repostitory.get(RepositoryA.class)).isNotNull().isInstanceOf(RepositoryAImpl.class);
+        assertThat(dependenciesRepository.get(ServiceA.class)).isNotNull();
+        assertThat(dependenciesRepository.get(ServiceB.class)).isNotNull();
+        assertThat(dependenciesRepository.get(RepositoryA.class)).isNotNull().isInstanceOf(RepositoryAImpl.class);
         assertThat(abstractionsRepository.get(RepositoryA.class)).isNotNull().matches(impl -> impl == RepositoryAImpl.class);
-    }
-
-    private static class Configuration extends DependencyInjectorScannerConfiguration {
-        @Override
-        public String packageToScan() {
-            return "es.jaime.test.abstractions";
-        }
     }
 }

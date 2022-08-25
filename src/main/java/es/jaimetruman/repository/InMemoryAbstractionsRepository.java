@@ -1,11 +1,12 @@
-package es.jaimetruman;
+package es.jaimetruman.repository;
 
 import es.jaimetruman.exceptions.DuplicatedImplementation;
+import es.jaimetruman.repository.AbstractionsRepository;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class InMemoryAbstractionsRepository implements AbstractionsRepository{
+public final class InMemoryAbstractionsRepository implements AbstractionsRepository {
     private final Map<Class<?>, Class<?>> abstractions;
 
     public InMemoryAbstractionsRepository() {

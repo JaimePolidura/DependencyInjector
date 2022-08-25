@@ -1,4 +1,4 @@
-package es.jaimetruman;
+package es.jaimetruman.repository;
 
 public interface DependenciesRepository {
     void add(Class<?> instanceClass, Object instance);

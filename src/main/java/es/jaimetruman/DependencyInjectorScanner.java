@@ -1,6 +1,8 @@
 package es.jaimetruman;
 
 import es.jaimetruman.exceptions.UnknownDependency;
+import es.jaimetruman.repository.AbstractionsRepository;
+import es.jaimetruman.repository.DependenciesRepository;
 import es.jaimetruman.utils.ReflectionUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -20,16 +22,15 @@ import static es.jaimetruman.utils.Utils.*;
 public final class DependencyInjectorScanner {
     private final DependenciesRepository dependencies;
     private final AbstractionsRepository abstractionsRepository;
-    private final DependencyInjectorScannerConfiguration configuration;
+    private final DependencyInjectorConfiguration configuration;
     private final Reflections reflections;
 
-    public DependencyInjectorScanner(DependenciesRepository dependencies, InMemoryAbstractionsRepository abstractionsRepository,
-                                     DependencyInjectorScannerConfiguration configuration) {
-        this.dependencies = dependencies;
-        this.abstractionsRepository = abstractionsRepository;
+    public DependencyInjectorScanner(DependencyInjectorConfiguration configuration) {
         this.configuration = configuration;
+        this.dependencies = configuration.getDependenciesRepository();
+        this.abstractionsRepository = configuration.getAbstractionsRepository();
         this.reflections = new Reflections(new ConfigurationBuilder()
-                .setUrls(ClasspathHelper.forPackage(configuration.packageToScan()))
+                .setUrls(ClasspathHelper.forPackage(configuration.getPackageToScan()))
                 .setScanners(new TypeAnnotationsScanner(),
                         new SubTypesScanner()));
     }
@@ -111,7 +112,7 @@ public final class DependencyInjectorScanner {
 
     private void ensureAllParametersAreFound(Class<?>[] parameterTypes) throws UnknownDependency {
         for (Class<?> parameterType : parameterTypes) {
-            boolean notAnnotated = !isAnnotatedWith(parameterType, this.configuration.getUsingAnnotations());
+            boolean notAnnotated = !isAnnotatedWith(parameterType, this.configuration.getAnnotations());
             boolean isAbstraction = isAbstraction(parameterType);
             boolean implementationNotFound = !this.abstractionsRepository.contains(parameterType);
 
@@ -123,13 +124,13 @@ public final class DependencyInjectorScanner {
     }
 
     private Set<Class<?>> getClassesAnnotated() {
-        return this.configuration.getUsingAnnotations().stream()
+        return this.configuration.getAnnotations().stream()
                 .map(this.reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
 
-    public Class<?> getImplementationFromAbstraction(Class<?> abstraction) {
+    private Class<?> getImplementationFromAbstraction(Class<?> abstraction) {
         boolean alreadyDeclaredInConfig = this.configuration.getAbstractions().containsKey(abstraction);
 
         return alreadyDeclaredInConfig ?

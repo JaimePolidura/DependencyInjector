@@ -1,9 +1,9 @@
-package es.jaimetruman;
+package es.jaimetruman.repository;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class InMemoryDependenciesRepository implements DependenciesRepository{
+public final class InMemoryDependenciesRepository implements DependenciesRepository {
     private final Map<Class<?>, Object> instances = new ConcurrentHashMap<>();
 
     @Override

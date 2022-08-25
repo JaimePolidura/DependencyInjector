@@ -1,4 +1,4 @@
-package es.jaimetruman;
+package es.jaimetruman.repository;
 
 import es.jaimetruman.exceptions.DuplicatedImplementation;
 
