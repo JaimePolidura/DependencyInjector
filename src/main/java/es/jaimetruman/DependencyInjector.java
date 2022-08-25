@@ -3,14 +3,14 @@ package es.jaimetruman;
 import lombok.Getter;
 
 public final class DependencyInjector {
-    @Getter private final DependenciesRepository dependencies;
+    @Getter private final InMemoryDependenciesRepository dependencies;
     private final DependencyInjectorScannerConfiguration configuration;
     private final DependencyInjectorScanner scanner;
 
     public DependencyInjector(DependencyInjectorScannerConfiguration configuration) {
-        this.dependencies = new DependenciesRepository();
+        this.dependencies = new InMemoryDependenciesRepository();
         this.configuration = configuration;
-        this.scanner = new DependencyInjectorScanner(this.dependencies, new AbstractionsRepository(), this.configuration);
+        this.scanner = new DependencyInjectorScanner(this.dependencies, new InMemoryAbstractionsRepository(), this.configuration);
     }
 
     public void startScanning(){

@@ -10,11 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class DependencyInjectorScannerConfiguration {
-    @Getter
-    private final Set<Class<? extends Annotation>> usingAnnotations;
-    @Getter
-    private final Map<Class<?>, Class<?>> abstractions;
-
+    @Getter private final Set<Class<? extends Annotation>> usingAnnotations;
+    @Getter private final Map<Class<?>, Class<?>> abstractions;
+    
     public DependencyInjectorScannerConfiguration() {
         this.usingAnnotations = new HashSet<Class<? extends Annotation>>() {{
             add(CommandHandler.class);

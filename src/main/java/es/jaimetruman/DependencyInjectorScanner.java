@@ -23,7 +23,7 @@ public final class DependencyInjectorScanner {
     private final DependencyInjectorScannerConfiguration configuration;
     private final Reflections reflections;
 
-    public DependencyInjectorScanner(DependenciesRepository dependencies, AbstractionsRepository abstractionsRepository,
+    public DependencyInjectorScanner(DependenciesRepository dependencies, InMemoryAbstractionsRepository abstractionsRepository,
                                      DependencyInjectorScannerConfiguration configuration) {
         this.dependencies = dependencies;
         this.abstractionsRepository = abstractionsRepository;
