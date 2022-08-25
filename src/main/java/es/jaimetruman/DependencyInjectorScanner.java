@@ -8,18 +8,25 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static es.jaimetruman.utils.ReflectionUtils.*;
+import static es.jaimetruman.utils.Utils.*;
 
 public final class DependencyInjectorScanner {
     private final DependenciesRepository dependencies;
+    private final AbstractionsRepository abstractionsRepository;
     private final DependencyInjectorScannerConfiguration configuration;
     private final Reflections reflections;
 
-    public DependencyInjectorScanner(DependenciesRepository dependencies, DependencyInjectorScannerConfiguration configuration) {
+    public DependencyInjectorScanner(DependenciesRepository dependencies, AbstractionsRepository abstractionsRepository,
+                                     DependencyInjectorScannerConfiguration configuration) {
         this.dependencies = dependencies;
+        this.abstractionsRepository = abstractionsRepository;
         this.configuration = configuration;
         this.reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(configuration.packageToScan()))
@@ -27,58 +34,106 @@ public final class DependencyInjectorScanner {
                         new SubTypesScanner()));
     }
 
-    public void start() throws Exception {
-        Set<Class<? extends Annotation>> annotationsToScan = this.configuration.getUsingAnnotations();
+    public void start() {
+        runCheckedOrTerminate(() -> {
+            this.searchForAbstractions();
+            this.searchForClassesToInstantiate();
+        });
+    }
 
-        for (Class<? extends Annotation> annotationToScan : annotationsToScan) {
-            Set<Class<?>> classesAnnotatedWith = this.reflections.getTypesAnnotatedWith(annotationToScan);
+    private void searchForAbstractions() {
+        this.getClassesAnnotated().stream()
+                .filter(ReflectionUtils::isImplementation)
+                .forEach(this::saveImplementation);
+    }
 
-            for (Class<?> classAnnotatedWith : classesAnnotatedWith) {
-                instantiateClass(classAnnotatedWith);
-            }
+    private void saveImplementation(Class<?> implementationClass) {
+        Class<?> abstractionClass = getAbstraction(implementationClass);
+        boolean alreadyDeclaredInConfig = this.configuration.getAbstractions().containsKey(abstractionClass);
+
+        runCheckedOrTerminate(() -> this.abstractionsRepository.add(
+                abstractionClass,
+                alreadyDeclaredInConfig ? this.configuration.getAbstractions().get(abstractionClass) : implementationClass)
+        );
+    }
+
+    private void searchForClassesToInstantiate() throws Exception {
+        for (Class<?> classAnnotatedWith : this.getClassesAnnotated()) {
+            instantiateClass(classAnnotatedWith);
         }
     }
 
     private Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {
-        Optional<Constructor<?>> constructorOptional = ReflectionUtils.getSmallerConstructor(classAnnotatedWith);
+        Optional<Constructor<?>> constructorOptional = getSmallestConstructor(classAnnotatedWith);
         boolean alreadyInstanced = this.dependencies.contains(classAnnotatedWith);
         boolean doestHaveEmptyConstructor = constructorOptional.isPresent();
 
         if (doestHaveEmptyConstructor && !alreadyInstanced) {
             Constructor<?> constructor = constructorOptional.get();
-            this.ensureAllParametersAreAnnotated(constructor.getParameterTypes());
+            this.ensureAllParametersAreFound(constructor.getParameterTypes());
             Class<?>[] parametersOfConstructor = constructor.getParameterTypes();
             Object[] instances = new Object[parametersOfConstructor.length];
 
             for (int i = 0; i < parametersOfConstructor.length; i++) {
                 Class<?> parameterOfConstructor = parametersOfConstructor[i];
-                instances[i] = instantiateClass(parameterOfConstructor);
+                boolean isAbstraction = isAbstraction(parameterOfConstructor);
+
+                instances[i] = instantiateClass(isAbstraction ?
+                        this.getImplementationFromAbstraction(parameterOfConstructor) :
+                        parameterOfConstructor
+                );
             }
 
             Object newInstance = constructor.newInstance(instances);
-            this.dependencies.addIfNotContained(newInstance);
+            saveDependency(newInstance);
 
             return newInstance;
-
-        } else {
+        }else{
             return alreadyInstanced ?
                     this.dependencies.get(classAnnotatedWith) :
                     createInstanceAndSave(classAnnotatedWith);
         }
     }
 
-    private Object createInstanceAndSave(Class<?> classAnnotatedWith) throws Exception {
-        Object instance = classAnnotatedWith.newInstance();
-        this.dependencies.addIfNotContained(instance);
-        return instance;
+    private void saveDependency(Object newInstance) {
+        Class<?> instanceClass = newInstance.getClass();
+        boolean isImplementation = isImplementation(instanceClass);
+
+        this.dependencies.add(isImplementation ? getAbstraction(instanceClass) : instanceClass, newInstance);
     }
 
-    private void ensureAllParametersAreAnnotated(Class<?>[] parameterTypes) throws UnknownDependency {
-        for (Class<?> parameterType : parameterTypes) {
-            boolean annotated = ReflectionUtils.isAnnotatedWith(parameterType, this.configuration.getUsingAnnotations());
+    private Object createInstanceAndSave(Class<?> classAnnotatedWith) throws Exception {
+        Object newInstance = classAnnotatedWith.newInstance();
+        this.saveDependency(newInstance);
 
-            if(!annotated)
+        return newInstance;
+    }
+
+    private void ensureAllParametersAreFound(Class<?>[] parameterTypes) throws UnknownDependency {
+        for (Class<?> parameterType : parameterTypes) {
+            boolean notAnnotated = !isAnnotatedWith(parameterType, this.configuration.getUsingAnnotations());
+            boolean isAbstraction = isAbstraction(parameterType);
+            boolean implementationNotFound = !this.abstractionsRepository.contains(parameterType);
+
+            if(isAbstraction && implementationNotFound)
+                throw new UnknownDependency("Implementation not found for %s, it may not be annotated", parameterType.getName());
+            if(!isAbstraction && notAnnotated)
                 throw new UnknownDependency("Unknown dependency type %s. Make sure it is annotated", parameterType.getName());
         }
+    }
+
+    private Set<Class<?>> getClassesAnnotated() {
+        return this.configuration.getUsingAnnotations().stream()
+                .map(this.reflections::getTypesAnnotatedWith)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+    }
+
+    public Class<?> getImplementationFromAbstraction(Class<?> abstraction) {
+        boolean alreadyDeclaredInConfig = this.configuration.getAbstractions().containsKey(abstraction);
+
+        return alreadyDeclaredInConfig ?
+                this.configuration.getAbstractions().get(abstraction) :
+                this.abstractionsRepository.get(abstraction);
     }
 }

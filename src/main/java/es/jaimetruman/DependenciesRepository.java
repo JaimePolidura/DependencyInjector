@@ -10,8 +10,8 @@ public final class DependenciesRepository {
         this.instances = new ConcurrentHashMap<>();
     }
 
-    public void addIfNotContained(Object instance){
-        this.instances.putIfAbsent(instance.getClass(), instance);
+    public void add(Class<?> instanceClass, Object instance){
+        this.instances.putIfAbsent(instanceClass, instance);
     }
 
     public Object get(Class<?> instance){

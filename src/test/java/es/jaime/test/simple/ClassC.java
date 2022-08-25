@@ -1,4 +1,4 @@
-package es.jaime.test;
+package es.jaime.test.simple;
 
 import es.jaimetruman.annotations.Service;
 

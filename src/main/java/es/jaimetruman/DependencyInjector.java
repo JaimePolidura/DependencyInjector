@@ -10,7 +10,7 @@ public final class DependencyInjector {
     public DependencyInjector(DependencyInjectorScannerConfiguration configuration) {
         this.dependencies = new DependenciesRepository();
         this.configuration = configuration;
-        this.scanner = new DependencyInjectorScanner(this.dependencies, this.configuration);
+        this.scanner = new DependencyInjectorScanner(this.dependencies, new AbstractionsRepository(), this.configuration);
     }
 
     public void startScanning(){
