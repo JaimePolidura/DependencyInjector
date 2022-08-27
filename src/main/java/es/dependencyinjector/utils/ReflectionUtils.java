@@ -13,11 +13,14 @@ public final class ReflectionUtils {
                 .min(Comparator.comparingInt(Constructor::getParameterCount));
     }
 
-    public static Class<?> getAbstraction(Class<?> implementation) {
-        Class<?> classExtends = implementation.getSuperclass();
-        boolean superClassAbstraction = classExtends != null && isAbstraction(classExtends);
+    public static List<Class<?>> getAbstractions(Class<?> implementation) {
+        Class<?> superClass = implementation.getSuperclass();
+        Class<?>[] interfaces = implementation.getInterfaces();
+        List<Class<?>> abstractions = new ArrayList<>(interfaces.length + 1);
+        abstractions.addAll(Arrays.asList(interfaces));
+        if(superClass != null) abstractions.add(superClass);
 
-        return superClassAbstraction ? classExtends : implementation.getInterfaces()[0];
+        return abstractions;
     }
 
     public static boolean isImplementation(Class<?> classToCheck) {

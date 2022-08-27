@@ -1,31 +1,34 @@
 package es.dependencyinjector.repository;
 
 import es.dependencyinjector.exceptions.DuplicatedImplementation;
+import es.dependencyinjector.exceptions.UnknownDependency;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class InMemoryAbstractionsRepository implements AbstractionsRepository {
-    private final Map<Class<?>, Class<?>> abstractions;
+    private final Map<Class<?>, List<Class<?>>> abstractions; //Abstraction -> Implementation
 
     public InMemoryAbstractionsRepository() {
         this.abstractions = new ConcurrentHashMap<>();
     }
 
     @Override
-    public void add(Class<?> abstraction, Class<?> implementation) throws DuplicatedImplementation {
-       Class<?> alreadySavedImplementation = this.abstractions.get(abstraction);
-
-        if(alreadySavedImplementation != null)
-           throw new DuplicatedImplementation("Duplicated implementation for %s found %s when already created %s",
-                   abstraction, implementation, alreadySavedImplementation);
-
-        this.abstractions.put(abstraction, implementation);
+    public void add(Class<?> abstraction, Class<?> implementation) {
+       this.abstractions.putIfAbsent(abstraction, new LinkedList<>());
+       this.abstractions.get(abstraction).add(implementation);
     }
 
     @Override
-    public Class<?> get(Class<?> abstraction){
-        return this.abstractions.get(abstraction);
+    public Class<?> get(Class<?> abstraction) throws Exception{
+        List<Class<?>> implementations = this.abstractions.get(abstraction);
+        if(implementations == null)
+            throw new UnknownDependency("Implementation not found for %s, it may not be annotated", abstraction.getName());
+        if(implementations.size() > 1)
+            throw new DuplicatedImplementation("Duplicated implementation for %s found %s",
+                    abstraction, implementations);
+
+        return implementations.get(0);
     }
 
     @Override

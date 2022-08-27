@@ -1,19 +1,23 @@
 package es.dependencyinjector;
 
+import es.dependencyinjector.annotations.Provider;
+import es.dependencyinjector.exceptions.AnnotationsMissing;
 import es.dependencyinjector.exceptions.UnknownDependency;
 import es.dependencyinjector.repository.AbstractionsRepository;
 import es.dependencyinjector.repository.DependenciesRepository;
+import es.dependencyinjector.repository.DependencyProvider;
+import es.dependencyinjector.repository.ProvidersRepository;
 import es.dependencyinjector.utils.ReflectionUtils;
 import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static es.dependencyinjector.utils.ReflectionUtils.*;
@@ -22,24 +26,40 @@ import static es.dependencyinjector.utils.Utils.*;
 public final class DependencyInjectorScanner {
     private final DependenciesRepository dependencies;
     private final AbstractionsRepository abstractionsRepository;
+    private final ProvidersRepository providersRepository;
     private final DependencyInjectorConfiguration configuration;
     private final Reflections reflections;
 
     public DependencyInjectorScanner(DependencyInjectorConfiguration configuration) {
         this.configuration = configuration;
         this.dependencies = configuration.getDependenciesRepository();
+        this.providersRepository = configuration.getProvidersRepository();
         this.abstractionsRepository = configuration.getAbstractionsRepository();
         this.reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(configuration.getPackageToScan()))
                 .setScanners(new TypeAnnotationsScanner(),
-                        new SubTypesScanner()));
+                        new SubTypesScanner(), new MethodAnnotationsScanner()));
     }
 
     public void start() {
         runCheckedOrTerminate(() -> {
+            this.searchForProviders();
             this.searchForAbstractions();
             this.searchForClassesToInstantiate();
         });
+    }
+
+    private void searchForProviders() {
+        this.reflections.getMethodsAnnotatedWith(Provider.class).stream()
+                .map(method -> DependencyProvider.of(method.getDeclaringClass(), method.getReturnType(), method))
+                .peek(provider -> runCheckedOrTerminate(() -> this.ensureProviderClassAnnotated(provider)))
+                .forEach(this.providersRepository::save);
+    }
+
+    private void ensureProviderClassAnnotated(DependencyProvider dependencyProvider) throws AnnotationsMissing{
+        if(!ReflectionUtils.isAnnotatedWith(dependencyProvider.getProviderClass(), this.configuration.getAnnotations()))
+            throw new AnnotationsMissing("Found provider %s but its container class %s is not annotated", dependencyProvider.getDependencyClassProvided(),
+                    dependencyProvider.getProviderClass());
     }
 
     private void searchForAbstractions() {
@@ -49,19 +69,21 @@ public final class DependencyInjectorScanner {
     }
 
     private void saveImplementation(Class<?> implementationClass) {
-        Class<?> abstractionClass = getAbstraction(implementationClass);
-        boolean alreadyDeclaredInConfig = this.configuration.getAbstractions().containsKey(abstractionClass);
+        List<Class<?>> abstractions = getAbstractions(implementationClass);
 
-        runCheckedOrTerminate(() -> this.abstractionsRepository.add(
-                abstractionClass,
-                alreadyDeclaredInConfig ? this.configuration.getAbstractions().get(abstractionClass) : implementationClass)
-        );
+        for (Class<?> abstraction : abstractions) {
+            boolean alreadyDeclaredInConfig = this.configuration.getAbstractions().containsKey(abstraction);
+
+            runCheckedOrTerminate(() -> this.abstractionsRepository.add(
+                    abstraction,
+                    alreadyDeclaredInConfig ? this.configuration.getAbstractions().get(abstraction) : implementationClass)
+            );
+        }
     }
 
     private void searchForClassesToInstantiate() throws Exception {
-        for (Class<?> classAnnotatedWith : this.getClassesAnnotated()) {
+        for (Class<?> classAnnotatedWith : this.getClassesAnnotated())
             instantiateClass(classAnnotatedWith);
-        }
     }
 
     private Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {
@@ -89,7 +111,7 @@ public final class DependencyInjectorScanner {
             saveDependency(newInstance);
 
             return newInstance;
-        }else{
+        }else {
             return alreadyInstanced ?
                     this.dependencies.get(classAnnotatedWith) :
                     createInstanceAndSave(classAnnotatedWith);
@@ -100,7 +122,18 @@ public final class DependencyInjectorScanner {
         Class<?> instanceClass = newInstance.getClass();
         boolean isImplementation = isImplementation(instanceClass);
 
-        this.dependencies.add(isImplementation ? getAbstraction(instanceClass) : instanceClass, newInstance);
+        List<Class<?>> abstractions = getAbstractions(instanceClass);
+        for (Class<?> abstraction : abstractions)
+            this.dependencies.add(isImplementation ? abstraction : instanceClass, newInstance);
+
+        this.providersRepository.findByProviderClass(instanceClass).ifPresent(dependencyProviders -> {
+            for (DependencyProvider provider : dependencyProviders) {
+                runCheckedOrTerminate(() -> {
+                    Object instanceProvided = provider.getProviderMethod().invoke(newInstance);
+                    this.dependencies.add(instanceProvided.getClass(), instanceProvided);
+                });
+            }
+        });
     }
 
     private Object createInstanceAndSave(Class<?> classAnnotatedWith) throws Exception {
@@ -115,10 +148,11 @@ public final class DependencyInjectorScanner {
             boolean notAnnotated = !isAnnotatedWith(parameterType, this.configuration.getAnnotations());
             boolean isAbstraction = isAbstraction(parameterType);
             boolean implementationNotFound = !this.abstractionsRepository.contains(parameterType);
+            boolean notProvided = !this.providersRepository.findByDependencyClassProvided(parameterType).isPresent();
 
             if(isAbstraction && implementationNotFound)
                 throw new UnknownDependency("Implementation not found for %s, it may not be annotated", parameterType.getName());
-            if(!isAbstraction && notAnnotated)
+            if((!isAbstraction && notAnnotated) && notProvided)
                 throw new UnknownDependency("Unknown dependency type %s. Make sure it is annotated", parameterType.getName());
         }
     }
@@ -130,7 +164,7 @@ public final class DependencyInjectorScanner {
                 .collect(Collectors.toSet());
     }
 
-    private Class<?> getImplementationFromAbstraction(Class<?> abstraction) {
+    private Class<?> getImplementationFromAbstraction(Class<?> abstraction) throws Exception {
         boolean alreadyDeclaredInConfig = this.configuration.getAbstractions().containsKey(abstraction);
 
         return alreadyDeclaredInConfig ?

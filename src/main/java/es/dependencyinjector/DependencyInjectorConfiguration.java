@@ -1,10 +1,7 @@
 package es.dependencyinjector;
 
 import es.dependencyinjector.annotations.*;
-import es.dependencyinjector.repository.AbstractionsRepository;
-import es.dependencyinjector.repository.DependenciesRepository;
-import es.dependencyinjector.repository.InMemoryAbstractionsRepository;
-import es.dependencyinjector.repository.InMemoryDependenciesRepository;
+import es.dependencyinjector.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -19,6 +16,7 @@ public class DependencyInjectorConfiguration {
     @Getter private final Map<Class<?>, Class<?>> abstractions;
     @Getter private final DependenciesRepository dependenciesRepository;
     @Getter private final AbstractionsRepository abstractionsRepository;
+    @Getter private final ProvidersRepository providersRepository;
     @Getter private final String packageToScan;
 
     public static DependencyInjectorConfigurationBuilder builder() {
@@ -30,11 +28,13 @@ public class DependencyInjectorConfiguration {
         private final Map<Class<?>, Class<?>> abstractions;
         private DependenciesRepository dependenciesRepository;
         private AbstractionsRepository abstractionsRepository;
+        private ProvidersRepository providersRepository;
         private String packageToScan;
 
         public DependencyInjectorConfigurationBuilder() {
             this.dependenciesRepository = new InMemoryDependenciesRepository();
             this.abstractionsRepository = new InMemoryAbstractionsRepository();
+            this.providersRepository = new InMemoryProvidersRepository();
             this.abstractions = new ConcurrentHashMap<>();
             this.annotations = new HashSet<>(Arrays.asList(CommandHandler.class, Component.class, Configuration.class,
                     EventHandler.class, QueryHandler.class, Repository.class, Service.class, UseCase.class, Controller.class
@@ -43,7 +43,12 @@ public class DependencyInjectorConfiguration {
 
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(this.annotations, this.abstractions, this.dependenciesRepository,
-                    this.abstractionsRepository, this.packageToScan);
+                    this.abstractionsRepository, this.providersRepository, this.packageToScan);
+        }
+
+        public DependencyInjectorConfigurationBuilder providers(ProvidersRepository providersRepository) {
+            this.providersRepository = providersRepository;
+            return this;
         }
 
         public DependencyInjectorConfigurationBuilder abstractions(@NonNull Map<Class<?>, Class<?>> abstractions) {
