@@ -1,4 +1,4 @@
-package es.dependencyinjector.repository;
+package es.dependencyinjector.abstractions;
 
 import es.dependencyinjector.exceptions.DuplicatedImplementation;
 import es.dependencyinjector.exceptions.UnknownDependency;

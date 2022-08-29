@@ -1,7 +1,7 @@
 package es.jaime.test.abstractions;
 
 import es.dependencyinjector.DependencyInjectorBootstrapper;
-import es.dependencyinjector.repository.InMemoryAbstractionsRepository;
+import es.dependencyinjector.abstractions.InMemoryAbstractionsRepository;
 import es.dependencyinjector.repository.InMemoryDependenciesRepository;
 import es.dependencyinjector.DependencyInjectorConfiguration;
 import lombok.SneakyThrows;

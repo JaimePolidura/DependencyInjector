@@ -1,10 +1,11 @@
-package es.dependencyinjector.repository;
+package es.dependencyinjector.providers;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class InMemoryProvidersRepository implements ProvidersRepository{
-    private final Map<Class<?>, DependencyProvider> providersByDependencyClassProvided = new HashMap<>();
-    private final Map<Class<?>, List<DependencyProvider>> providersByProviderClass = new HashMap<>();
+    private final Map<Class<?>, DependencyProvider> providersByDependencyClassProvided = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<DependencyProvider>> providersByProviderClass = new ConcurrentHashMap<>();
 
     @Override
     public void save(DependencyProvider dependencyProvider) {

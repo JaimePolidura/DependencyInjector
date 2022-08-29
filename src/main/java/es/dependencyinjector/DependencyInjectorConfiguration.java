@@ -1,6 +1,10 @@
 package es.dependencyinjector;
 
+import es.dependencyinjector.abstractions.AbstractionsRepository;
+import es.dependencyinjector.abstractions.InMemoryAbstractionsRepository;
 import es.dependencyinjector.annotations.*;
+import es.dependencyinjector.providers.InMemoryProvidersRepository;
+import es.dependencyinjector.providers.ProvidersRepository;
 import es.dependencyinjector.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

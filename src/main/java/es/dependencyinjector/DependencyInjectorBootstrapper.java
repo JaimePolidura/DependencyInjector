@@ -1,7 +1,8 @@
 package es.dependencyinjector;
 
-import es.dependencyinjector.repository.AbstractionsRepository;
+import es.dependencyinjector.abstractions.AbstractionsRepository;
 import es.dependencyinjector.repository.DependenciesRepository;
+import es.dependencyinjector.providers.ProvidersRepository;
 
 public final class DependencyInjectorBootstrapper {
     private final DependencyInjectorConfiguration configuration;
@@ -23,11 +24,17 @@ public final class DependencyInjectorBootstrapper {
 
     public static DependencyInjectorConfiguration init(DependencyInjectorConfiguration configuration) throws Exception{
         DependencyInjectorBootstrapper dependencyInjector = new DependencyInjectorBootstrapper(configuration);
+
         DependenciesRepository dependenciesRepository = dependencyInjector.configuration.getDependenciesRepository();
         AbstractionsRepository abstractionsRepository = dependencyInjector.configuration.getAbstractionsRepository();
 
+        ProvidersRepository providersRepository = dependencyInjector.configuration.getProvidersRepository();
         dependenciesRepository.add(DependenciesRepository.class, dependenciesRepository);
+        abstractionsRepository.add(DependenciesRepository.class, dependenciesRepository.getClass());
+        dependenciesRepository.add(AbstractionsRepository.class, abstractionsRepository);
         abstractionsRepository.add(AbstractionsRepository.class, abstractionsRepository.getClass());
+        dependenciesRepository.add(ProvidersRepository.class, providersRepository);
+        abstractionsRepository.add(ProvidersRepository.class, providersRepository.getClass());
 
         dependencyInjector.startScanning();
 

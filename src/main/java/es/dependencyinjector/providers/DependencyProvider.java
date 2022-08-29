@@ -1,4 +1,4 @@
-package es.dependencyinjector.repository;
+package es.dependencyinjector.providers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
