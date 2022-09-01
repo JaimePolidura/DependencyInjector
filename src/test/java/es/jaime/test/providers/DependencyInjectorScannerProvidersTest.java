@@ -24,6 +24,7 @@ public final class DependencyInjectorScannerProvidersTest {
                 .dependenciesRepository(dependenciesRepository)
                 .abstractionsRepository(abstractionsRepository)
                 .providers(providersRepository)
+                .waitUntilCompletion()
                 .build());
 
         Exchanger<Integer> exchanger = new Exchanger<>();

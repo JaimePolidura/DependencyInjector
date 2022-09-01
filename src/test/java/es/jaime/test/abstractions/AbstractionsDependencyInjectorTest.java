@@ -16,9 +16,10 @@ public final class AbstractionsDependencyInjectorTest {
         InMemoryDependenciesRepository dependenciesRepository = new InMemoryDependenciesRepository();
         InMemoryAbstractionsRepository abstractionsRepository = new InMemoryAbstractionsRepository();
         DependencyInjectorBootstrapper.init(DependencyInjectorConfiguration.builder()
-                        .packageToScan("es.jaime.test")
-                        .dependenciesRepository(dependenciesRepository)
-                        .abstractionsRepository(abstractionsRepository)
+                .packageToScan("es.jaime.test")
+                .dependenciesRepository(dependenciesRepository)
+                .abstractionsRepository(abstractionsRepository)
+                .waitUntilCompletion()
                 .build());
 
         assertThat(dependenciesRepository.get(ServiceA.class)).isNotNull();

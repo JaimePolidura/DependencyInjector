@@ -50,26 +50,35 @@ public final class DependencyInjectorScanner {
         this.abstractionsScanner = new AbstractionsScanner(this.configuration, this.reflections);
     }
 
-    public void start() {
+    @SneakyThrows
+    public CountDownLatch start() {
+        CountDownLatch loadingLatch = new CountDownLatch(3);
+
         runCheckedOrTerminate(() -> {
-            this.searchForProviders();
-            this.searchForAbstractions();
-            this.searchForClassesToInstantiate();
+            this.searchForProviders(loadingLatch);
+            this.searchForAbstractions(loadingLatch);
+            this.searchForClassesToInstantiate(loadingLatch);
         });
+
+        if(this.configuration.isWaitUntilCompletion()) loadingLatch.await();
+
+        return loadingLatch;
     }
 
-    private void searchForProviders() {
+    private void searchForProviders(CountDownLatch loadingLatch) {
         this.providersScanner.scan().forEach(this.providersRepository::save);
+        loadingLatch.countDown();
     }
 
-    private void searchForAbstractions() {
+    private void searchForAbstractions(CountDownLatch loadingLatch) {
         this.abstractionsScanner.scan().forEach(this.abstractionsSaver::save);
+        loadingLatch.countDown();
     }
 
     @SneakyThrows
-    private void searchForClassesToInstantiate() {
+    private void searchForClassesToInstantiate(CountDownLatch loadingLatch) {
         Set<Class<?>> classesAnnotated = this.getClassesAnnotated();
-        CountDownLatch countDownLatch = new CountDownLatch(classesAnnotated.size());
+        CountDownLatch countDownLatch = new CountDownLatch(this.configuration.isWaitUntilCompletion() ? classesAnnotated.size() : 1);
 
         for (Class<?> classAnnotatedWith : classesAnnotated){
             this.executor.execute(() -> runCheckedOrTerminate(() -> {
@@ -80,6 +89,7 @@ public final class DependencyInjectorScanner {
 
         countDownLatch.await();
         this.executor.shutdown();
+        loadingLatch.countDown();;
     }
 
     private Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {

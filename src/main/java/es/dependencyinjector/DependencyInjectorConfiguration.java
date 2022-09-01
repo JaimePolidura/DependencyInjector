@@ -22,6 +22,7 @@ public class DependencyInjectorConfiguration {
     @Getter private final AbstractionsRepository abstractionsRepository;
     @Getter private final ProvidersRepository providersRepository;
     @Getter private final String packageToScan;
+    @Getter private final boolean waitUntilCompletion;
 
     public static DependencyInjectorConfigurationBuilder builder() {
         return new DependencyInjectorConfigurationBuilder();
@@ -34,6 +35,7 @@ public class DependencyInjectorConfiguration {
         private AbstractionsRepository abstractionsRepository;
         private ProvidersRepository providersRepository;
         private String packageToScan;
+        private boolean waitUntilCompletion;
 
         public DependencyInjectorConfigurationBuilder() {
             this.dependenciesRepository = new InMemoryDependenciesRepository();
@@ -47,7 +49,12 @@ public class DependencyInjectorConfiguration {
 
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(this.annotations, this.abstractions, this.dependenciesRepository,
-                    this.abstractionsRepository, this.providersRepository, this.packageToScan);
+                    this.abstractionsRepository, this.providersRepository, this.packageToScan, this.waitUntilCompletion);
+        }
+
+        public DependencyInjectorConfigurationBuilder waitUntilCompletion() {
+            this.waitUntilCompletion = true;
+            return this;
         }
 
         public DependencyInjectorConfigurationBuilder providers(ProvidersRepository providersRepository) {
