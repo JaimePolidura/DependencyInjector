@@ -1,7 +1,7 @@
 package es.dependencyinjector.abstractions;
 
-import es.dependencyinjector.exceptions.DuplicatedImplementation;
-import es.dependencyinjector.exceptions.UnknownDependency;
+import es.dependencyinjector.utils.exceptions.DuplicatedImplementation;
+import es.dependencyinjector.utils.exceptions.UnknownDependency;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

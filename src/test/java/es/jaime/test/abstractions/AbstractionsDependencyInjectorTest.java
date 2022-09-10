@@ -2,8 +2,8 @@ package es.jaime.test.abstractions;
 
 import es.dependencyinjector.DependencyInjectorBootstrapper;
 import es.dependencyinjector.abstractions.InMemoryAbstractionsRepository;
-import es.dependencyinjector.repository.InMemoryDependenciesRepository;
 import es.dependencyinjector.DependencyInjectorConfiguration;
+import es.dependencyinjector.dependencies.InMemoryDependenciesRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -22,9 +22,9 @@ public final class AbstractionsDependencyInjectorTest {
                 .waitUntilCompletion()
                 .build());
 
-        assertThat(dependenciesRepository.get(ServiceA.class)).isNotNull();
-        assertThat(dependenciesRepository.get(ServiceB.class)).isNotNull();
-        assertThat(dependenciesRepository.get(RepositoryA.class)).isNotNull().isInstanceOf(RepositoryAImpl.class);
-        assertThat(abstractionsRepository.get(RepositoryA.class)).isNotNull().matches(impl -> impl == RepositoryAImpl.class);
+        assertThat(dependenciesRepository.get(ServiceAAbs.class)).isNotNull();
+        assertThat(dependenciesRepository.get(ServiceBAbs.class)).isNotNull();
+        assertThat(dependenciesRepository.get(RepositoryAAbs.class)).isNotNull().isInstanceOf(RepositoryAImplAbs.class);
+        assertThat(abstractionsRepository.get(RepositoryAAbs.class)).isNotNull().matches(impl -> impl == RepositoryAImplAbs.class);
     }
 }

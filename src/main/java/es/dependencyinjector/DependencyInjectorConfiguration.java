@@ -2,10 +2,14 @@ package es.dependencyinjector;
 
 import es.dependencyinjector.abstractions.AbstractionsRepository;
 import es.dependencyinjector.abstractions.InMemoryAbstractionsRepository;
-import es.dependencyinjector.annotations.*;
+import es.dependencyinjector.conditions.*;
+import es.dependencyinjector.conditions.conditionalonpropery.ConditionalOnProperty;
+import es.dependencyinjector.conditions.conditionalonpropery.DependencyConditionalOnPropertyTester;
+import es.dependencyinjector.conditions.conditionalonpropery.PropertyReader;
+import es.dependencyinjector.dependencies.annotations.*;
 import es.dependencyinjector.providers.InMemoryProvidersRepository;
 import es.dependencyinjector.providers.ProvidersRepository;
-import es.dependencyinjector.repository.*;
+import es.dependencyinjector.dependencies.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -23,12 +27,15 @@ public class DependencyInjectorConfiguration {
     @Getter private final ProvidersRepository providersRepository;
     @Getter private final String packageToScan;
     @Getter private final boolean waitUntilCompletion;
+    @Getter private final PropertyReader propertyReader;
+    @Getter private final List<SupportedConditionAnnotation> conditionAnnotations;
 
     public static DependencyInjectorConfigurationBuilder builder() {
         return new DependencyInjectorConfigurationBuilder();
     }
 
     public static class DependencyInjectorConfigurationBuilder {
+        private final List<SupportedConditionAnnotation> conditionAnnotations;
         private final Set<Class<? extends Annotation>> annotations;
         private final Map<Class<?>, Class<?>> abstractions;
         private DependenciesRepository dependenciesRepository;
@@ -36,12 +43,16 @@ public class DependencyInjectorConfiguration {
         private ProvidersRepository providersRepository;
         private String packageToScan;
         private boolean waitUntilCompletion;
+        private PropertyReader propertyReader;
 
         public DependencyInjectorConfigurationBuilder() {
             this.dependenciesRepository = new InMemoryDependenciesRepository();
             this.abstractionsRepository = new InMemoryAbstractionsRepository();
             this.providersRepository = new InMemoryProvidersRepository();
             this.abstractions = new ConcurrentHashMap<>();
+            this.conditionAnnotations = new ArrayList<>(Arrays.asList(
+                    SupportedConditionAnnotation.from(ConditionalOnProperty.class, DependencyConditionalOnPropertyTester.class)
+            ));
             this.annotations = new HashSet<>(Arrays.asList(CommandHandler.class, Component.class, Configuration.class,
                     EventHandler.class, QueryHandler.class, Repository.class, Service.class, UseCase.class, Controller.class
             ));
@@ -49,7 +60,13 @@ public class DependencyInjectorConfiguration {
 
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(this.annotations, this.abstractions, this.dependenciesRepository,
-                    this.abstractionsRepository, this.providersRepository, this.packageToScan, this.waitUntilCompletion);
+                    this.abstractionsRepository, this.providersRepository, this.packageToScan, this.waitUntilCompletion,
+                    this.propertyReader, this.conditionAnnotations);
+        }
+
+        public DependencyInjectorConfigurationBuilder propertyReader(PropertyReader reader) {
+            this.propertyReader = reader;
+            return this;
         }
 
         public DependencyInjectorConfigurationBuilder waitUntilCompletion() {

@@ -1,7 +1,8 @@
 package es.dependencyinjector;
 
 import es.dependencyinjector.abstractions.AbstractionsRepository;
-import es.dependencyinjector.repository.DependenciesRepository;
+import es.dependencyinjector.conditions.conditionalonpropery.DependencyConditionalOnPropertyTester;
+import es.dependencyinjector.dependencies.DependenciesRepository;
 import es.dependencyinjector.providers.ProvidersRepository;
 
 public final class DependencyInjectorBootstrapper {
@@ -35,6 +36,8 @@ public final class DependencyInjectorBootstrapper {
         abstractionsRepository.add(AbstractionsRepository.class, abstractionsRepository.getClass());
         dependenciesRepository.add(ProvidersRepository.class, providersRepository);
         abstractionsRepository.add(ProvidersRepository.class, providersRepository.getClass());
+        dependenciesRepository.add(DependencyConditionalOnPropertyTester.class,
+                new DependencyConditionalOnPropertyTester(configuration.getPropertyReader()));
 
         dependencyInjector.startScanning();
 

@@ -3,7 +3,7 @@ package es.jaime.test.providers;
 import es.dependencyinjector.DependencyInjectorBootstrapper;
 import es.dependencyinjector.DependencyInjectorConfiguration;
 import es.dependencyinjector.abstractions.InMemoryAbstractionsRepository;
-import es.dependencyinjector.repository.InMemoryDependenciesRepository;
+import es.dependencyinjector.dependencies.InMemoryDependenciesRepository;
 import es.dependencyinjector.providers.InMemoryProvidersRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -29,13 +29,13 @@ public final class DependencyInjectorScannerProvidersTest {
 
         Exchanger<Integer> exchanger = new Exchanger<>();
 
-        assertThat(dependenciesRepository.get(Provider1.class)).isNotNull();
-        assertThat(dependenciesRepository.get(Provider2.class)).isNotNull();
-        assertThat(dependenciesRepository.get(Provided1.class)).isNotNull();
-        assertThat(dependenciesRepository.get(Provided2.class)).isNotNull();
-        assertThat(dependenciesRepository.get(Provided3.class)).isNotNull();
+        assertThat(dependenciesRepository.get(Provider1Pro.class)).isNotNull();
+        assertThat(dependenciesRepository.get(Provider2Pro.class)).isNotNull();
+        assertThat(dependenciesRepository.get(Provided1Pro.class)).isNotNull();
+        assertThat(dependenciesRepository.get(Provided2Pro.class)).isNotNull();
+        assertThat(dependenciesRepository.get(Provided3Pro.class)).isNotNull();
 
-        assertThat(dependenciesRepository.get(Service1.class)).isNotNull();
-        assertThat(dependenciesRepository.get(Service2.class)).isNotNull().matches(service -> ((Service2) service).getProvided1() != null);
+        assertThat(dependenciesRepository.get(Service1Pro.class)).isNotNull();
+        assertThat(dependenciesRepository.get(Service2Pro.class)).isNotNull().matches(service -> ((Service2Pro) service).getProvided1() != null);
     }
 }

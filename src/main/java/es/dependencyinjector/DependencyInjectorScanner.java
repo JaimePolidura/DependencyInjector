@@ -2,10 +2,10 @@ package es.dependencyinjector;
 
 import es.dependencyinjector.abstractions.AbstractionsSaver;
 import es.dependencyinjector.abstractions.AbstractionsScanner;
-import es.dependencyinjector.exceptions.UnknownDependency;
+import es.dependencyinjector.conditions.DependencyConditionService;
 import es.dependencyinjector.providers.ProvidersScanner;
 import es.dependencyinjector.abstractions.AbstractionsRepository;
-import es.dependencyinjector.repository.DependenciesRepository;
+import es.dependencyinjector.dependencies.DependenciesRepository;
 import es.dependencyinjector.providers.DependencyProvider;
 import es.dependencyinjector.providers.ProvidersRepository;
 import lombok.SneakyThrows;
@@ -34,6 +34,7 @@ public final class DependencyInjectorScanner {
     private final ProvidersScanner providersScanner;
     private final AbstractionsSaver abstractionsSaver;
     private final AbstractionsScanner abstractionsScanner;
+    private final DependencyConditionService dependencyConditionService;
 
     public DependencyInjectorScanner(DependencyInjectorConfiguration configuration) {
         this.configuration = configuration;
@@ -46,8 +47,9 @@ public final class DependencyInjectorScanner {
                 .setScanners(new TypeAnnotationsScanner(),
                         new SubTypesScanner(), new MethodAnnotationsScanner()));
         this.providersScanner = new ProvidersScanner(this.reflections, this.configuration);
-        this.abstractionsSaver = new AbstractionsSaver(this.configuration);
         this.abstractionsScanner = new AbstractionsScanner(this.configuration, this.reflections);
+        this.dependencyConditionService = new DependencyConditionService(this.configuration, this);
+        this.abstractionsSaver = new AbstractionsSaver(this.configuration, this.dependencyConditionService);
     }
 
     @SneakyThrows
@@ -71,7 +73,9 @@ public final class DependencyInjectorScanner {
     }
 
     private void searchForAbstractions(CountDownLatch loadingLatch) {
-        this.abstractionsScanner.scan().forEach(this.abstractionsSaver::save);
+        this.abstractionsScanner.scan().forEach(implementation -> {
+            runCheckedOrTerminate(() -> this.abstractionsSaver.save(implementation));
+        });
         loadingLatch.countDown();
     }
 
@@ -92,14 +96,17 @@ public final class DependencyInjectorScanner {
         loadingLatch.countDown();;
     }
 
-    private Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {
+    public Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {
         Optional<Constructor<?>> constructorOptional = getSmallestConstructor(classAnnotatedWith);
         boolean alreadyInstanced = this.dependencies.contains(classAnnotatedWith);
         boolean doestHaveEmptyConstructor = constructorOptional.isPresent();
 
+        if(!this.dependencyConditionService.testAll(classAnnotatedWith)){
+            return null;
+        }
+
         if (doestHaveEmptyConstructor && !alreadyInstanced) {
             Constructor<?> constructor = constructorOptional.get();
-            this.ensureAllParametersAreFound(constructor.getParameterTypes());
             Class<?>[] parametersOfConstructor = constructor.getParameterTypes();
             Object[] instances = new Object[parametersOfConstructor.length];
 
@@ -147,20 +154,6 @@ public final class DependencyInjectorScanner {
         this.saveDependency(newInstance);
 
         return newInstance;
-    }
-
-    private void ensureAllParametersAreFound(Class<?>[] parameterTypes) throws UnknownDependency {
-        for (Class<?> parameterType : parameterTypes) {
-            boolean notAnnotated = !isAnnotatedWith(parameterType, this.configuration.getAnnotations());
-            boolean isAbstraction = isAbstraction(parameterType);
-            boolean implementationNotFound = !this.abstractionsRepository.contains(parameterType);
-            boolean notProvided = !this.providersRepository.findByDependencyClassProvided(parameterType).isPresent();
-
-            if(isAbstraction && implementationNotFound)
-                throw new UnknownDependency("Implementation not found for %s, it may not be annotated", parameterType.getName());
-            if((!isAbstraction && notAnnotated) && notProvided)
-                throw new UnknownDependency("Unknown dependency type %s. Make sure it is annotated", parameterType.getName());
-        }
     }
 
     private Set<Class<?>> getClassesAnnotated() {

@@ -1,8 +1,7 @@
 package es.dependencyinjector.providers;
 
 import es.dependencyinjector.DependencyInjectorConfiguration;
-import es.dependencyinjector.annotations.Provider;
-import es.dependencyinjector.exceptions.AnnotationsMissing;
+import es.dependencyinjector.utils.exceptions.AnnotationsMissing;
 import es.dependencyinjector.utils.ReflectionUtils;
 import lombok.AllArgsConstructor;
 import org.reflections.Reflections;

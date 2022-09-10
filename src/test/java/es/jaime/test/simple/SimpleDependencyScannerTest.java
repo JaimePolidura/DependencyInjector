@@ -1,7 +1,7 @@
 package es.jaime.test.simple;
 
 import es.dependencyinjector.DependencyInjectorBootstrapper;
-import es.dependencyinjector.repository.InMemoryDependenciesRepository;
+import es.dependencyinjector.dependencies.InMemoryDependenciesRepository;
 import es.dependencyinjector.DependencyInjectorConfiguration;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -19,8 +19,8 @@ public final class SimpleDependencyScannerTest {
                         .waitUntilCompletion()
                 .build());
 
-        assertThat(repository.get(ClassA.class)).isNotNull();
-        assertThat(repository.get(ClassB.class)).isNotNull();
-        assertThat(repository.get(ClassC.class)).isNotNull();
+        assertThat(repository.get(ClassASim.class)).isNotNull();
+        assertThat(repository.get(ClassBSim.class)).isNotNull();
+        assertThat(repository.get(ClassCSim.class)).isNotNull();
     }
 }

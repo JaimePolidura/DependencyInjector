@@ -1,6 +1,6 @@
 package es.dependencyinjector.abstractions;
 
-import es.dependencyinjector.exceptions.DuplicatedImplementation;
+import es.dependencyinjector.utils.exceptions.DuplicatedImplementation;
 
 public interface AbstractionsRepository {
     void add(Class<?> abstraction, Class<?> implementation) throws DuplicatedImplementation;

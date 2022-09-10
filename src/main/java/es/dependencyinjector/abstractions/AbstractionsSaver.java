@@ -1,6 +1,7 @@
 package es.dependencyinjector.abstractions;
 
 import es.dependencyinjector.DependencyInjectorConfiguration;
+import es.dependencyinjector.conditions.DependencyConditionService;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -11,8 +12,12 @@ import static es.dependencyinjector.utils.Utils.runCheckedOrTerminate;
 @AllArgsConstructor
 public final class AbstractionsSaver {
     private final DependencyInjectorConfiguration configuration;
-    
-    public void save(Class<?> implementationClass) {
+    private final DependencyConditionService dependencyConditionService;
+
+    public void save(Class<?> implementationClass) throws Exception {
+        if(!this.dependencyConditionService.testAll(implementationClass))
+            return;
+
         List<Class<?>> abstractions = getAbstractions(implementationClass);
 
         for (Class<?> abstraction : abstractions) {

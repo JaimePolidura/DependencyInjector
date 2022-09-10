@@ -35,6 +35,16 @@ public final class ReflectionUtils {
         return classToCheck.isInterface() || Modifier.isAbstract(classToCheck.getModifiers());
     }
 
+    public static List<Annotation> findAnnotationsInClass(Class<?> toCheck) {
+        return new ArrayList<>(Arrays.asList(toCheck.getDeclaredAnnotations()));
+    }
+
+    public static Optional<Annotation> findAnnotationIn(Class<?> classToCheck, Class<? extends Annotation> annotation) {
+        return Arrays.stream(classToCheck.getDeclaredAnnotations())
+                .filter(a -> a.annotationType().equals(annotation))
+                .findFirst();
+    }
+
     public static boolean isAnnotatedWith(Class<?> classToCheck, Set<Class<? extends Annotation>> annotations){
         for (Annotation declaredAnnotation : classToCheck.getDeclaredAnnotations())
             for (Class<? extends Annotation> annotation : annotations)
