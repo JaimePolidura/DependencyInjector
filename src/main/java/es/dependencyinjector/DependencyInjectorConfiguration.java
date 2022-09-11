@@ -6,6 +6,8 @@ import es.dependencyinjector.conditions.*;
 import es.dependencyinjector.conditions.conditionalonpropery.ConditionalOnProperty;
 import es.dependencyinjector.conditions.conditionalonpropery.DependencyConditionalOnPropertyTester;
 import es.dependencyinjector.conditions.conditionalonpropery.PropertyReader;
+import es.dependencyinjector.conditions.conditionon.ConditionalOn;
+import es.dependencyinjector.conditions.conditionon.DependencyConditionalOnTester;
 import es.dependencyinjector.dependencies.annotations.*;
 import es.dependencyinjector.providers.InMemoryProvidersRepository;
 import es.dependencyinjector.providers.ProvidersRepository;
@@ -51,7 +53,8 @@ public class DependencyInjectorConfiguration {
             this.providersRepository = new InMemoryProvidersRepository();
             this.abstractions = new ConcurrentHashMap<>();
             this.conditionAnnotations = new ArrayList<>(Arrays.asList(
-                    SupportedConditionAnnotation.from(ConditionalOnProperty.class, DependencyConditionalOnPropertyTester.class)
+                    SupportedConditionAnnotation.from(ConditionalOnProperty.class, DependencyConditionalOnPropertyTester.class),
+                    SupportedConditionAnnotation.from(ConditionalOn.class, DependencyConditionalOnTester.class)
             ));
             this.annotations = new HashSet<>(Arrays.asList(CommandHandler.class, Component.class, Configuration.class,
                     EventHandler.class, QueryHandler.class, Repository.class, Service.class, UseCase.class, Controller.class

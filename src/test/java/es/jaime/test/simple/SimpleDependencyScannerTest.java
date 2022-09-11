@@ -3,6 +3,7 @@ package es.jaime.test.simple;
 import es.dependencyinjector.DependencyInjectorBootstrapper;
 import es.dependencyinjector.dependencies.InMemoryDependenciesRepository;
 import es.dependencyinjector.DependencyInjectorConfiguration;
+import es.jaime.test.FakePropertyReader;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,7 @@ public final class SimpleDependencyScannerTest {
         DependencyInjectorBootstrapper.init(DependencyInjectorConfiguration.builder()
                         .packageToScan("es.jaime.test")
                         .dependenciesRepository(repository)
+                        .propertyReader(new FakePropertyReader())
                         .waitUntilCompletion()
                 .build());
 

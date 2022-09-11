@@ -114,6 +114,8 @@ public final class DependencyInjectorScanner {
                 Class<?> parameterOfConstructor = parametersOfConstructor[i];
                 boolean isAbstraction = isAbstraction(parameterOfConstructor);
 
+                System.out.println(classAnnotatedWith);
+
                 instances[i] = instantiateClass(isAbstraction ?
                         this.getImplementationFromAbstraction(parameterOfConstructor) :
                         parameterOfConstructor

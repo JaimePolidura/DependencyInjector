@@ -1,15 +1,15 @@
-package es.jaime.test.conditions.simple;
+package es.jaime.test.conditions.conditional;
 
 import es.dependencyinjector.DependencyInjectorBootstrapper;
 import es.dependencyinjector.DependencyInjectorConfiguration;
-import es.dependencyinjector.conditions.conditionalonpropery.PropertyReader;
 import es.dependencyinjector.dependencies.InMemoryDependenciesRepository;
+import es.jaime.test.FakePropertyReader;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
-public final class SimpleConditionsDependecyInjectorTest {
+public final class ConditionalOnConditionsDependecyInjectorTest {
     @Test
     @SneakyThrows
     public void shouldScan() {
@@ -21,16 +21,8 @@ public final class SimpleConditionsDependecyInjectorTest {
                 .waitUntilCompletion()
                 .build());
 
-        assertThat(dependenciesRepository.get(ServiceCond1.class)).isNull();
-        assertThat(dependenciesRepository.get(ServiceCond2.class)).isNotNull();
-    }
-
-    private static class FakePropertyReader implements PropertyReader {
-        @Override
-        public String get(String key) {
-            if(key.equalsIgnoreCase("1")) return "a";
-            if(key.equalsIgnoreCase("2")) return "b";
-            return "c";
-        }
+        assertThat(dependenciesRepository.get(Service2Con.class)).isNotNull();
+        assertThat(dependenciesRepository.get(Service3Con.class)).isNull();
     }
 }
+

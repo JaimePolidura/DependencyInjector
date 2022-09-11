@@ -25,11 +25,10 @@ public final class DependencyInjectorBootstrapper {
 
     public static DependencyInjectorConfiguration init(DependencyInjectorConfiguration configuration) throws Exception{
         DependencyInjectorBootstrapper dependencyInjector = new DependencyInjectorBootstrapper(configuration);
-
         DependenciesRepository dependenciesRepository = dependencyInjector.configuration.getDependenciesRepository();
         AbstractionsRepository abstractionsRepository = dependencyInjector.configuration.getAbstractionsRepository();
-
         ProvidersRepository providersRepository = dependencyInjector.configuration.getProvidersRepository();
+
         dependenciesRepository.add(DependenciesRepository.class, dependenciesRepository);
         abstractionsRepository.add(DependenciesRepository.class, dependenciesRepository.getClass());
         dependenciesRepository.add(AbstractionsRepository.class, abstractionsRepository);
@@ -38,6 +37,8 @@ public final class DependencyInjectorBootstrapper {
         abstractionsRepository.add(ProvidersRepository.class, providersRepository.getClass());
         dependenciesRepository.add(DependencyConditionalOnPropertyTester.class,
                 new DependencyConditionalOnPropertyTester(configuration.getPropertyReader()));
+        dependenciesRepository.add(dependencyInjector.getClass(), dependenciesRepository);
+        dependenciesRepository.add(configuration.getClass(), configuration);
 
         dependencyInjector.startScanning();
 

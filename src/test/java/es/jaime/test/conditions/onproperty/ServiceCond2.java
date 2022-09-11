@@ -1,4 +1,4 @@
-package es.jaime.test.conditions.simple;
+package es.jaime.test.conditions.onproperty;
 
 import es.dependencyinjector.conditions.conditionalonpropery.ConditionalOnProperty;
 import es.dependencyinjector.dependencies.annotations.Service;

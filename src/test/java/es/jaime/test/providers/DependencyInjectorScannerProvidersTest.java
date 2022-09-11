@@ -5,6 +5,7 @@ import es.dependencyinjector.DependencyInjectorConfiguration;
 import es.dependencyinjector.abstractions.InMemoryAbstractionsRepository;
 import es.dependencyinjector.dependencies.InMemoryDependenciesRepository;
 import es.dependencyinjector.providers.InMemoryProvidersRepository;
+import es.jaime.test.FakePropertyReader;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,7 @@ public final class DependencyInjectorScannerProvidersTest {
                 .dependenciesRepository(dependenciesRepository)
                 .abstractionsRepository(abstractionsRepository)
                 .providers(providersRepository)
+                .propertyReader(new FakePropertyReader())
                 .waitUntilCompletion()
                 .build());
 
