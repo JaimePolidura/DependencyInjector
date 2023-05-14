@@ -2,14 +2,14 @@ package es.dependencyinjector.providers;
 
 import es.dependencyinjector.DependencyInjectorConfiguration;
 import es.dependencyinjector.utils.exceptions.AnnotationsMissing;
-import es.dependencyinjector.utils.ReflectionUtils;
 import lombok.AllArgsConstructor;
 import org.reflections.Reflections;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static es.dependencyinjector.utils.Utils.runCheckedOrTerminate;
+import static es.jaime.javaddd.application.utils.ExceptionUtils.runCheckedOrTerminate;
+import static es.jaime.javaddd.application.utils.ReflectionUtils.isAnnotatedWith;
 
 @AllArgsConstructor
 public final class ProvidersScanner {
@@ -23,9 +23,8 @@ public final class ProvidersScanner {
                 .collect(Collectors.toList());
     }
 
-
     private void ensureProviderClassAnnotated(DependencyProvider dependencyProvider) throws AnnotationsMissing {
-        if(!ReflectionUtils.isAnnotatedWith(dependencyProvider.getProviderClass(), this.configuration.getAnnotations()))
+        if(!isAnnotatedWith(dependencyProvider.getProviderClass(), this.configuration.getAnnotations()))
             throw new AnnotationsMissing("Found provider %s but its container class %s is not annotated", dependencyProvider.getDependencyClassProvided(),
                     dependencyProvider.getProviderClass());
     }

@@ -1,7 +1,7 @@
 package es.dependencyinjector.abstractions;
 
 import es.dependencyinjector.DependencyInjectorConfiguration;
-import es.dependencyinjector.utils.ReflectionUtils;
+import es.jaime.javaddd.application.utils.ReflectionUtils;
 import lombok.AllArgsConstructor;
 import org.reflections.Reflections;
 

@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 
 import java.util.List;
 
-import static es.dependencyinjector.utils.ReflectionUtils.getAbstractions;
-import static es.dependencyinjector.utils.Utils.runCheckedOrTerminate;
+import static es.jaime.javaddd.application.utils.ExceptionUtils.runCheckedOrTerminate;
+import static es.jaime.javaddd.application.utils.ReflectionUtils.getAbstractions;
 
 @AllArgsConstructor
 public final class AbstractionsSaver {

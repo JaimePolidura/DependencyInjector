@@ -13,6 +13,13 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
         <dependency>
@@ -39,6 +46,12 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.JaimeTruman</groupId>
+            <artifactId>Java-DDD</artifactId>
+            <version>1.1.4</version>
+        </dependency>
+
     </dependencies>
 
 </project>

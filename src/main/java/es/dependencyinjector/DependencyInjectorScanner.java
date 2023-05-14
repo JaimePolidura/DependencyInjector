@@ -3,6 +3,7 @@ package es.dependencyinjector;
 import es.dependencyinjector.abstractions.AbstractionsSaver;
 import es.dependencyinjector.abstractions.AbstractionsScanner;
 import es.dependencyinjector.conditions.DependencyConditionService;
+import es.dependencyinjector.hooks.AfterAllScanned;
 import es.dependencyinjector.providers.ProvidersScanner;
 import es.dependencyinjector.abstractions.AbstractionsRepository;
 import es.dependencyinjector.dependencies.DependenciesRepository;
@@ -21,8 +22,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static es.dependencyinjector.utils.ReflectionUtils.*;
-import static es.dependencyinjector.utils.Utils.*;
+import static es.jaime.javaddd.application.utils.ExceptionUtils.*;
+import static es.jaime.javaddd.application.utils.ReflectionUtils.*;
 
 public final class DependencyInjectorScanner {
     private final DependenciesRepository dependencies;
@@ -57,14 +58,28 @@ public final class DependencyInjectorScanner {
         CountDownLatch loadingLatch = new CountDownLatch(3);
 
         runCheckedOrTerminate(() -> {
-            this.searchForProviders(loadingLatch);
-            this.searchForAbstractions(loadingLatch);
-            this.searchForClassesToInstantiate(loadingLatch);
+            searchForProviders(loadingLatch);
+            searchForAbstractions(loadingLatch);
+            searchForClassesToInstantiate(loadingLatch);
         });
 
-        if(this.configuration.isWaitUntilCompletion()) loadingLatch.await();
+        if(this.configuration.isWaitUntilCompletion()) {
+            loadingLatch.await();
+            this.callDependenciesAfterAllScannedHook();
+        }else{
+            this.executor.execute(() -> {
+                awaitFor(loadingLatch);
+                callDependenciesAfterAllScannedHook();
+            });
+        }
 
         return loadingLatch;
+    }
+
+    private void callDependenciesAfterAllScannedHook() {
+        this.dependencies.queryByImplementsInterface(AfterAllScanned.class).forEach(hookListener -> {
+            hookListener.afterAllScanned(dependencies);
+        });
     }
 
     private void searchForProviders(CountDownLatch loadingLatch) {
@@ -113,8 +128,6 @@ public final class DependencyInjectorScanner {
             for (int i = 0; i < parametersOfConstructor.length; i++) {
                 Class<?> parameterOfConstructor = parametersOfConstructor[i];
                 boolean isAbstraction = isAbstraction(parameterOfConstructor);
-
-                System.out.println(classAnnotatedWith);
 
                 instances[i] = instantiateClass(isAbstraction ?
                         this.getImplementationFromAbstraction(parameterOfConstructor) :
@@ -171,5 +184,10 @@ public final class DependencyInjectorScanner {
         return alreadyDeclaredInConfig ?
                 this.configuration.getAbstractions().get(abstraction) :
                 this.abstractionsRepository.get(abstraction);
+    }
+
+    @SneakyThrows
+    private void awaitFor(CountDownLatch latch) {
+        latch.await();
     }
 }
