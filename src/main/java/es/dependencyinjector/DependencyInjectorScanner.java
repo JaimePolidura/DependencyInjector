@@ -77,7 +77,7 @@ public final class DependencyInjectorScanner {
     }
 
     private void callDependenciesAfterAllScannedHook() {
-        this.dependencies.queryByImplementsInterface(AfterAllScanned.class).forEach(hookListener -> {
+        this.dependencies.filterByImplementsInterface(AfterAllScanned.class).forEach(hookListener -> {
             hookListener.afterAllScanned(dependencies);
         });
     }
@@ -114,13 +114,13 @@ public final class DependencyInjectorScanner {
     public Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {
         Optional<Constructor<?>> constructorOptional = getSmallestConstructor(classAnnotatedWith);
         boolean alreadyInstanced = this.dependencies.contains(classAnnotatedWith);
-        boolean doestHaveEmptyConstructor = constructorOptional.isPresent();
+        boolean doesntHaveEmptyConstructor = constructorOptional.isPresent();
 
-        if(!this.dependencyConditionService.testAll(classAnnotatedWith)){
+        if(!dependencyConditionService.testAll(classAnnotatedWith)){
             return null;
         }
 
-        if (doestHaveEmptyConstructor && !alreadyInstanced) {
+        if (doesntHaveEmptyConstructor && !alreadyInstanced) {
             Constructor<?> constructor = constructorOptional.get();
             Class<?>[] parametersOfConstructor = constructor.getParameterTypes();
             Object[] instances = new Object[parametersOfConstructor.length];

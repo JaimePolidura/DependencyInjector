@@ -17,7 +17,7 @@ public final class ProvidersScanner {
     private final DependencyInjectorConfiguration configuration;
 
     public List<DependencyProvider> scan() {
-        return this.reflections.getMethodsAnnotatedWith(Provider.class).stream()
+        return reflections.getMethodsAnnotatedWith(Provider.class).stream()
                 .map(method -> DependencyProvider.of(method.getDeclaringClass(), method.getReturnType(), method))
                 .peek(provider -> runCheckedOrTerminate(() -> this.ensureProviderClassAnnotated(provider)))
                 .collect(Collectors.toList());

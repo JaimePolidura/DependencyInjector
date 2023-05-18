@@ -2,6 +2,7 @@ package es.dependencyinjector.dependencies;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Optional;
 
 public interface DependenciesRepository {
     void add(Class<?> instanceClass, Object instance);
@@ -10,9 +11,9 @@ public interface DependenciesRepository {
 
     boolean contains(Class<?> classToGet);
 
-    <T> List<T> queryByImplementsInterface(Class<T> interfaceToCheck);
+    <T> List<T> filterByImplementsInterface(Class<T> interfaceToCheck);
 
-    List<Object> queryByAnnotatedWith(Class<? extends Annotation> annotationToCheck);
+    <T> Optional<T> filterByImplementsInterfaceWithGeneric(Class<T> interfaceToCheck, Class<?> genericType);
 
-    <T> List<T> queryByAnnotatedWithAndImplementsInterface(Class<? extends Annotation> annotationToCheck, Class<T> interfaceToCheck);
+    List<Object> filterByAnnotatedWith(Class<? extends Annotation> annotationToCheck);
 }

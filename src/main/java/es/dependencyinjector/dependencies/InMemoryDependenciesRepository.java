@@ -1,5 +1,7 @@
 package es.dependencyinjector.dependencies;
 
+import es.jaime.javaddd.application.utils.ReflectionUtils;
+
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,21 +38,23 @@ public final class InMemoryDependenciesRepository implements DependenciesReposit
     }
 
     @Override
-    public <T> List<T> queryByImplementsInterface(Class<T> interfaceToCheck) {
+    public <T> Optional<T> filterByImplementsInterfaceWithGeneric(Class<T> interfaceToCheck, Class<?> genericType) {
+        return filterByImplementsInterface(interfaceToCheck).stream()
+                .filter(implementation -> hasInterfaceWithGenericType((Class<?>) implementation, genericType))
+                .findFirst();
+    }
+
+    @Override
+    public <T> List<T> filterByImplementsInterface(Class<T> interfaceToCheck) {
         return implementsInterfaceIndex.containsKey(interfaceToCheck) ?
                 new LinkedList<T>((Collection<? extends T>) implementsInterfaceIndex.get(interfaceToCheck)) :
                 Collections.EMPTY_LIST;
     }
 
     @Override
-    public List<Object> queryByAnnotatedWith(Class<? extends Annotation> annotationToCheck) {
+    public List<Object> filterByAnnotatedWith(Class<? extends Annotation> annotationToCheck) {
         return annotatedWithIndex.containsKey(annotationToCheck) ?
                 new LinkedList<>(annotatedWithIndex.get(annotationToCheck)) :
                 Collections.EMPTY_LIST;
-    }
-
-    @Override
-    public <T> List<T> queryByAnnotatedWithAndImplementsInterface(Class<? extends Annotation> annotationToCheck, Class<T> interfaceToCheck) {
-        return null;
     }
 }
