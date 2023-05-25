@@ -1,7 +1,5 @@
 package es.dependencyinjector.dependencies;
 
-import es.jaime.javaddd.application.utils.ReflectionUtils;
-
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,8 +26,8 @@ public final class InMemoryDependenciesRepository implements DependenciesReposit
     }
 
     @Override
-    public Object get(Class<?> instance){
-        return this.instances.get(instance);
+    public <T> T get(Class<T> instance) {
+        return (T) this.instances.get(instance);
     }
 
     @Override

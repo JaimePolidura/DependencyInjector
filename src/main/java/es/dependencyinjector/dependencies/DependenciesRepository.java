@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface DependenciesRepository {
     void add(Class<?> instanceClass, Object instance);
 
-    Object get(Class<?> instance);
+    <T> T get(Class<T> instance);
 
     boolean contains(Class<?> classToGet);
 
