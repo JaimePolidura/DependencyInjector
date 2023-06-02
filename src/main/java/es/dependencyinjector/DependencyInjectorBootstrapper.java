@@ -39,6 +39,7 @@ public final class DependencyInjectorBootstrapper {
                 new DependencyConditionalOnPropertyTester(configuration.getPropertyReader()));
         dependenciesRepository.add(dependencyInjector.getClass(), dependenciesRepository);
         dependenciesRepository.add(configuration.getClass(), configuration);
+        dependenciesRepository.add(DependenciesExecutor.class, new DependenciesExecutor(dependenciesRepository));
 
         dependencyInjector.startScanning();
 
