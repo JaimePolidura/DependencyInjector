@@ -1,6 +1,7 @@
 package es.dependencyinjector.providers;
 
 import es.dependencyinjector.DependencyInjectorConfiguration;
+import es.dependencyinjector.DependencyInjectorLogger;
 import es.dependencyinjector.utils.exceptions.AnnotationsMissing;
 import lombok.AllArgsConstructor;
 import org.reflections.Reflections;
@@ -15,11 +16,14 @@ import static es.jaime.javaddd.application.utils.ReflectionUtils.isAnnotatedWith
 public final class ProvidersScanner {
     private final Reflections reflections;
     private final DependencyInjectorConfiguration configuration;
+    private final DependencyInjectorLogger logger;
 
     public List<DependencyProvider> scan() {
         return reflections.getMethodsAnnotatedWith(Provider.class).stream()
                 .map(method -> DependencyProvider.of(method.getDeclaringClass(), method.getReturnType(), method))
                 .peek(provider -> runCheckedOrTerminate(() -> this.ensureProviderClassAnnotated(provider)))
+                .peek(provider -> logger.log("Found provided class %s in provider class %s",
+                        provider.getDependencyClassProvided().getName(), provider.getProviderClass().getName()))
                 .collect(Collectors.toList());
     }
 

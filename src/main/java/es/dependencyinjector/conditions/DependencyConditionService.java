@@ -25,7 +25,7 @@ public final class DependencyConditionService {
             SupportedConditionAnnotation supportedConditionAnnotation = getSupportedConditionAnnotation(conditionAnnotationInDependency);
             Class<? extends DependencyConditionTester> testerClass = supportedConditionAnnotation.getTester();
 
-            DependencyConditionTester testerInstance = (DependencyConditionTester) this.scanner.instantiateClass(testerClass);
+            DependencyConditionTester testerInstance = (DependencyConditionTester) this.scanner.instantiateClass(testerClass, testerClass);
 
             if(!testerInstance.test(dependency, conditionAnnotationInDependency)){
                 return false;

@@ -11,7 +11,7 @@ public final class DependencyConditionalOnTester implements DependencyConditionT
     @Override
     public boolean test(Class<?> dependencyToTest, ConditionalOn annotation) throws Exception {
         Class<?> conditionClass = annotation.value();
-        Condition conditionInstance = (Condition) this.dependencyInjectorScanner.instantiateClass(conditionClass);
+        Condition conditionInstance = (Condition) this.dependencyInjectorScanner.instantiateClass(conditionClass, conditionClass);
 
         return conditionInstance.test(dependencyToTest);
     }

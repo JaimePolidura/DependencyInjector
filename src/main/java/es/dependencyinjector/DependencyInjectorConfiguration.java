@@ -34,6 +34,7 @@ public class DependencyInjectorConfiguration {
     @Getter private final List<SupportedConditionAnnotation> conditionAnnotations;
     @Getter private final boolean logging;
     @Getter private final Logger logger;
+    @Getter private final boolean multiThreadedScan;
 
     public static DependencyInjectorConfigurationBuilder builder() {
         return new DependencyInjectorConfigurationBuilder();
@@ -51,9 +52,11 @@ public class DependencyInjectorConfiguration {
         private PropertyReader propertyReader;
         private boolean logging;
         private Logger logger;
+        private boolean multiThreadedScan;
 
         public DependencyInjectorConfigurationBuilder() {
             this.logging = false;
+            this.multiThreadedScan = true;
             this.dependenciesRepository = new InMemoryDependenciesRepository();
             this.abstractionsRepository = new InMemoryAbstractionsRepository();
             this.providersRepository = new InMemoryProvidersRepository();
@@ -70,7 +73,17 @@ public class DependencyInjectorConfiguration {
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(annotations, abstractions, dependenciesRepository,
                     abstractionsRepository, providersRepository, packageToScan, waitUntilCompletion,
-                    propertyReader, conditionAnnotations, logging, logger);
+                    propertyReader, conditionAnnotations, logging, logger, multiThreadedScan);
+        }
+
+        public DependencyInjectorConfigurationBuilder singleThreadedScan() {
+            this.multiThreadedScan = false;
+            return this;
+        }
+
+        public DependencyInjectorConfigurationBuilder multiThreadedScan() {
+            this.multiThreadedScan = true;
+            return this;
         }
 
         public DependencyInjectorConfigurationBuilder logging(Logger logger) {

@@ -7,6 +7,8 @@ import es.jaime.test.FakePropertyReader;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
+import java.util.logging.Logger;
+
 import static org.assertj.core.api.Assertions.*;
 
 public final class SimpleDependencyScannerTest {

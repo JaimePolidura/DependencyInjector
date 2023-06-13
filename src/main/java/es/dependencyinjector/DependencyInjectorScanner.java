@@ -9,6 +9,7 @@ import es.dependencyinjector.abstractions.AbstractionsRepository;
 import es.dependencyinjector.dependencies.DependenciesRepository;
 import es.dependencyinjector.providers.DependencyProvider;
 import es.dependencyinjector.providers.ProvidersRepository;
+import es.dependencyinjector.utils.FakeExecutorService;
 import lombok.SneakyThrows;
 import org.reflections.Reflections;
 import org.reflections.scanners.MethodAnnotationsScanner;
@@ -38,21 +39,25 @@ public final class DependencyInjectorScanner {
     private final AbstractionsSaver abstractionsSaver;
     private final AbstractionsScanner abstractionsScanner;
     private final DependencyConditionService dependencyConditionService;
+    private final DependencyInjectorLogger dependencyInjectorLogger;
 
     public DependencyInjectorScanner(DependencyInjectorConfiguration configuration) {
         this.configuration = configuration;
+        this.dependencyInjectorLogger = new DependencyInjectorLogger(configuration);
         this.dependencies = configuration.getDependenciesRepository();
         this.providersRepository = configuration.getProvidersRepository();
         this.abstractionsRepository = configuration.getAbstractionsRepository();
-        this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.executor = configuration.isMultiThreadedScan() ?
+                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()) :
+                new FakeExecutorService();
         this.reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(configuration.getPackageToScan()))
                 .setScanners(new TypeAnnotationsScanner(),
                         new SubTypesScanner(), new MethodAnnotationsScanner()));
-        this.providersScanner = new ProvidersScanner(this.reflections, this.configuration);
-        this.abstractionsScanner = new AbstractionsScanner(this.configuration, this.reflections);
-        this.dependencyConditionService = new DependencyConditionService(this.configuration, this);
-        this.abstractionsSaver = new AbstractionsSaver(this.configuration, this.dependencyConditionService);
+        this.providersScanner = new ProvidersScanner(reflections, configuration, dependencyInjectorLogger);
+        this.abstractionsScanner = new AbstractionsScanner(dependencyInjectorLogger, configuration, reflections);
+        this.dependencyConditionService = new DependencyConditionService(configuration, this);
+        this.abstractionsSaver = new AbstractionsSaver(configuration, dependencyConditionService, dependencyInjectorLogger);
     }
 
     @SneakyThrows
@@ -85,11 +90,15 @@ public final class DependencyInjectorScanner {
     }
 
     private void searchForProviders(CountDownLatch loadingLatch) {
+        dependencyInjectorLogger.log("STARTING WITH PROVIDERS\n");
+
         this.providersScanner.scan().forEach(this.providersRepository::save);
         loadingLatch.countDown();
     }
 
     private void searchForAbstractions(CountDownLatch loadingLatch) {
+        dependencyInjectorLogger.log("STARTING WITH ABSTRACTIONS\n");
+
         this.abstractionsScanner.scan().forEach(implementation -> {
             runCheckedOrTerminate(() -> this.abstractionsSaver.save(implementation));
         });
@@ -98,6 +107,8 @@ public final class DependencyInjectorScanner {
 
     @SneakyThrows
     private void searchForClassesToInstantiate(CountDownLatch loadingLatch) {
+        dependencyInjectorLogger.log("STARTING WITH CLASSES\n");
+
         Set<Class<?>> classesAnnotated = this.getClassesAnnotated();
         CountDownLatch countDownLatch = new CountDownLatch(this.configuration.isWaitUntilCompletion() ? classesAnnotated.size() : 1);
 
@@ -105,7 +116,7 @@ public final class DependencyInjectorScanner {
 
         for (Class<?> classAnnotatedWith : classesAnnotated){
             this.executor.execute(() -> runCheckedOrTerminate(() -> {
-                instantiateClass(classAnnotatedWith);
+                instantiateClass(classAnnotatedWith, classAnnotatedWith);
                 countDownLatch.countDown();
             }));
         }
@@ -115,8 +126,8 @@ public final class DependencyInjectorScanner {
         loadingLatch.countDown();;
     }
 
-    public Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {
-        log("Starting to instantiate %s", classAnnotatedWith.getName());
+    public Object instantiateClass(Class<?> containerClass, Class<?> classAnnotatedWith) throws Exception {
+        log("Found class %s contained from %s class", classAnnotatedWith.getName(), containerClass.getName());
 
         Optional<Constructor<?>> constructorOptional = getSmallestConstructor(classAnnotatedWith);
         boolean alreadyInstanced = this.dependencies.contains(classAnnotatedWith);
@@ -135,7 +146,7 @@ public final class DependencyInjectorScanner {
                 Class<?> parameterOfConstructor = parametersOfConstructor[i];
                 boolean isAbstraction = isAbstraction(parameterOfConstructor);
 
-                instances[i] = instantiateClass(isAbstraction ?
+                instances[i] = instantiateClass(classAnnotatedWith, isAbstraction ?
                         getImplementationFromAbstraction(parameterOfConstructor) :
                         parameterOfConstructor
                 );
