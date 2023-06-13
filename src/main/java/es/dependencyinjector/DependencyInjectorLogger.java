@@ -8,7 +8,7 @@ import java.util.logging.Level;
 public final class DependencyInjectorLogger {
     private final DependencyInjectorConfiguration configuration;
 
-    public void log(String mensaje, Object ...args) {
+    public void info(String mensaje, Object ...args) {
         if(configuration.isLogging()){
             configuration.getLogger().log(Level.INFO, String.format(mensaje, args));
         }

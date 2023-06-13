@@ -9,4 +9,6 @@ public interface ProvidersRepository {
     Optional<DependencyProvider> findByDependencyClassProvided(Class<?> dependencyClassProvided);
 
     Optional<List<DependencyProvider>> findByProviderClass(Class<?> providerClass);
+
+    List<Class<?>> findAllProviderClasses();
 }

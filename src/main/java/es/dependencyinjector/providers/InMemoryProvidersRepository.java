@@ -23,4 +23,9 @@ public final class InMemoryProvidersRepository implements ProvidersRepository{
     public Optional<List<DependencyProvider>> findByProviderClass(Class<?> providerClass) {
         return Optional.ofNullable(this.providersByProviderClass.get(providerClass));
     }
+
+    @Override
+    public List<Class<?>> findAllProviderClasses() {
+        return new ArrayList<>(providersByProviderClass.keySet());
+    }
 }

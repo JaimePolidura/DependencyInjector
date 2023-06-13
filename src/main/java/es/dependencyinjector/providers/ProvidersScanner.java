@@ -22,7 +22,7 @@ public final class ProvidersScanner {
         return reflections.getMethodsAnnotatedWith(Provider.class).stream()
                 .map(method -> DependencyProvider.of(method.getDeclaringClass(), method.getReturnType(), method))
                 .peek(provider -> runCheckedOrTerminate(() -> this.ensureProviderClassAnnotated(provider)))
-                .peek(provider -> logger.log("Found provided class %s in provider class %s",
+                .peek(provider -> logger.info("Found provided class %s in provider class %s",
                         provider.getDependencyClassProvided().getName(), provider.getProviderClass().getName()))
                 .collect(Collectors.toList());
     }

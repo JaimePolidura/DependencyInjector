@@ -10,17 +10,25 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
 public final class AbstractionsScanner {
     private final DependencyInjectorLogger dependencyInjectorLogger;
     private final DependencyInjectorConfiguration configuration;
+    private final AbstractionsService abstractionsService;
     private final Reflections reflections;
+
+    public AbstractionsScanner(DependencyInjectorLogger dependencyInjectorLogger, DependencyInjectorConfiguration configuration,
+                               Reflections reflections) {
+        this.abstractionsService = new AbstractionsService(configuration);
+        this.dependencyInjectorLogger = dependencyInjectorLogger;
+        this.configuration = configuration;
+        this.reflections = reflections;
+    }
 
     public Set<Class<?>> scan() {
         return this.configuration.getAnnotations().stream()
                 .map(this.reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
-                .filter(ReflectionUtils::isImplementation)
+                .filter(abstractionsService::isImplementation)
                 .collect(Collectors.toSet());
     }
 }

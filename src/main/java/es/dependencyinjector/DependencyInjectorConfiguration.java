@@ -35,6 +35,7 @@ public class DependencyInjectorConfiguration {
     @Getter private final boolean logging;
     @Getter private final Logger logger;
     @Getter private final boolean multiThreadedScan;
+    @Getter private final Set<Class<?>> excludedAbstractions;
 
     public static DependencyInjectorConfigurationBuilder builder() {
         return new DependencyInjectorConfigurationBuilder();
@@ -44,6 +45,7 @@ public class DependencyInjectorConfiguration {
         private final List<SupportedConditionAnnotation> conditionAnnotations;
         private final Set<Class<? extends Annotation>> annotations;
         private final Map<Class<?>, Class<?>> abstractions;
+        private final Set<Class<?>> excludedAbstractions;
         private DependenciesRepository dependenciesRepository;
         private AbstractionsRepository abstractionsRepository;
         private ProvidersRepository providersRepository;
@@ -57,6 +59,7 @@ public class DependencyInjectorConfiguration {
         public DependencyInjectorConfigurationBuilder() {
             this.logging = false;
             this.multiThreadedScan = true;
+            this.excludedAbstractions = new HashSet<>();
             this.dependenciesRepository = new InMemoryDependenciesRepository();
             this.abstractionsRepository = new InMemoryAbstractionsRepository();
             this.providersRepository = new InMemoryProvidersRepository();
@@ -73,7 +76,12 @@ public class DependencyInjectorConfiguration {
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(annotations, abstractions, dependenciesRepository,
                     abstractionsRepository, providersRepository, packageToScan, waitUntilCompletion,
-                    propertyReader, conditionAnnotations, logging, logger, multiThreadedScan);
+                    propertyReader, conditionAnnotations, logging, logger, multiThreadedScan, excludedAbstractions);
+        }
+
+        public DependencyInjectorConfigurationBuilder excludedAbstractions(Collection<? extends Class<?>> excludedAbstractions) {
+            this.excludedAbstractions.addAll(excludedAbstractions);
+            return this;
         }
 
         public DependencyInjectorConfigurationBuilder singleThreadedScan() {
