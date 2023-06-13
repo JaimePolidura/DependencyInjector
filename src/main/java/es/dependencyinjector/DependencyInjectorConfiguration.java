@@ -19,6 +19,7 @@ import lombok.NonNull;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 @AllArgsConstructor
 public class DependencyInjectorConfiguration {
@@ -31,6 +32,8 @@ public class DependencyInjectorConfiguration {
     @Getter private final boolean waitUntilCompletion;
     @Getter private final PropertyReader propertyReader;
     @Getter private final List<SupportedConditionAnnotation> conditionAnnotations;
+    @Getter private final boolean logging;
+    @Getter private final Logger logger;
 
     public static DependencyInjectorConfigurationBuilder builder() {
         return new DependencyInjectorConfigurationBuilder();
@@ -46,8 +49,11 @@ public class DependencyInjectorConfiguration {
         private String packageToScan;
         private boolean waitUntilCompletion;
         private PropertyReader propertyReader;
+        private boolean logging;
+        private Logger logger;
 
         public DependencyInjectorConfigurationBuilder() {
+            this.logging = false;
             this.dependenciesRepository = new InMemoryDependenciesRepository();
             this.abstractionsRepository = new InMemoryAbstractionsRepository();
             this.providersRepository = new InMemoryProvidersRepository();
@@ -62,9 +68,15 @@ public class DependencyInjectorConfiguration {
         }
 
         public DependencyInjectorConfiguration build() {
-            return new DependencyInjectorConfiguration(this.annotations, this.abstractions, this.dependenciesRepository,
-                    this.abstractionsRepository, this.providersRepository, this.packageToScan, this.waitUntilCompletion,
-                    this.propertyReader, this.conditionAnnotations);
+            return new DependencyInjectorConfiguration(annotations, abstractions, dependenciesRepository,
+                    abstractionsRepository, providersRepository, packageToScan, waitUntilCompletion,
+                    propertyReader, conditionAnnotations, logging, logger);
+        }
+
+        public DependencyInjectorConfigurationBuilder logging(Logger logger) {
+            this.logging = true;
+            this.logger = logger;
+            return this;
         }
 
         public DependencyInjectorConfigurationBuilder propertyReader(PropertyReader reader) {

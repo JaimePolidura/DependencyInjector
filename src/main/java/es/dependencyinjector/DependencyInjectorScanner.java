@@ -20,6 +20,8 @@ import org.reflections.util.ConfigurationBuilder;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static es.jaime.javaddd.application.utils.ExceptionUtils.*;
@@ -99,6 +101,8 @@ public final class DependencyInjectorScanner {
         Set<Class<?>> classesAnnotated = this.getClassesAnnotated();
         CountDownLatch countDownLatch = new CountDownLatch(this.configuration.isWaitUntilCompletion() ? classesAnnotated.size() : 1);
 
+        log("%s classes to be instantiated", classesAnnotated.size());
+
         for (Class<?> classAnnotatedWith : classesAnnotated){
             this.executor.execute(() -> runCheckedOrTerminate(() -> {
                 instantiateClass(classAnnotatedWith);
@@ -112,6 +116,8 @@ public final class DependencyInjectorScanner {
     }
 
     public Object instantiateClass(Class<?> classAnnotatedWith) throws Exception {
+        log("Starting to instantiate %s", classAnnotatedWith.getName());
+
         Optional<Constructor<?>> constructorOptional = getSmallestConstructor(classAnnotatedWith);
         boolean alreadyInstanced = this.dependencies.contains(classAnnotatedWith);
         boolean doesntHaveEmptyConstructor = constructorOptional.isPresent();
@@ -130,7 +136,7 @@ public final class DependencyInjectorScanner {
                 boolean isAbstraction = isAbstraction(parameterOfConstructor);
 
                 instances[i] = instantiateClass(isAbstraction ?
-                        this.getImplementationFromAbstraction(parameterOfConstructor) :
+                        getImplementationFromAbstraction(parameterOfConstructor) :
                         parameterOfConstructor
                 );
             }
@@ -189,5 +195,11 @@ public final class DependencyInjectorScanner {
     @SneakyThrows
     private void awaitFor(CountDownLatch latch) {
         latch.await();
+    }
+
+    private void log(String message, Object... args) {
+        if(configuration.isLogging()){
+            configuration.getLogger().log(Level.INFO, String.format(message, args));
+        }
     }
 }
