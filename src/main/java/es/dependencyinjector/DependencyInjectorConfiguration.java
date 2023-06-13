@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class DependencyInjectorConfiguration {
@@ -79,8 +80,8 @@ public class DependencyInjectorConfiguration {
                     propertyReader, conditionAnnotations, logging, logger, multiThreadedScan, excludedAbstractions);
         }
 
-        public DependencyInjectorConfigurationBuilder excludedAbstractions(Collection<? extends Class<?>> excludedAbstractions) {
-            this.excludedAbstractions.addAll(excludedAbstractions);
+        public DependencyInjectorConfigurationBuilder excludedAbstractions(Class<?> ...excludedAbstractions) {
+            this.excludedAbstractions.addAll(Arrays.stream(excludedAbstractions).collect(Collectors.toSet()));
             return this;
         }
 
