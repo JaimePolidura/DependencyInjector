@@ -2,8 +2,6 @@ package es.dependencyinjector.abstractions;
 
 import es.dependencyinjector.DependencyInjectorConfiguration;
 import es.dependencyinjector.DependencyInjectorLogger;
-import es.jaime.javaddd.application.utils.ReflectionUtils;
-import lombok.AllArgsConstructor;
 import org.reflections.Reflections;
 
 import java.util.Collection;
@@ -29,6 +27,7 @@ public final class AbstractionsScanner {
                 .map(this.reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
                 .filter(abstractionsService::isImplementation)
+                .filter(implementation -> !configuration.getExcludedDependencies().contains(implementation))
                 .collect(Collectors.toSet());
     }
 }

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class DependencyInjectorConfiguration {
     @Getter private final Set<Class<? extends Annotation>> annotations;
     @Getter private final Map<Class<?>, Class<?>> abstractions;
+    @Getter private final Set<Class<?>> excludedDependencies;
     @Getter private final DependenciesRepository dependenciesRepository;
     @Getter private final AbstractionsRepository abstractionsRepository;
     @Getter private final ProvidersRepository providersRepository;
@@ -50,6 +51,7 @@ public class DependencyInjectorConfiguration {
         private DependenciesRepository dependenciesRepository;
         private AbstractionsRepository abstractionsRepository;
         private ProvidersRepository providersRepository;
+        private Set<Class<?>> excludedDependencies;
         private String packageToScan;
         private boolean waitUntilCompletion;
         private PropertyReader propertyReader;
@@ -63,6 +65,7 @@ public class DependencyInjectorConfiguration {
             this.excludedAbstractions = new HashSet<>();
             this.dependenciesRepository = new InMemoryDependenciesRepository();
             this.abstractionsRepository = new InMemoryAbstractionsRepository();
+            this.excludedDependencies = new HashSet<>();
             this.providersRepository = new InMemoryProvidersRepository();
             this.abstractions = new ConcurrentHashMap<>();
             this.conditionAnnotations = new ArrayList<>(Arrays.asList(
@@ -75,13 +78,18 @@ public class DependencyInjectorConfiguration {
         }
 
         public DependencyInjectorConfiguration build() {
-            return new DependencyInjectorConfiguration(annotations, abstractions, dependenciesRepository,
+            return new DependencyInjectorConfiguration(annotations, abstractions, excludedDependencies, dependenciesRepository,
                     abstractionsRepository, providersRepository, packageToScan, waitUntilCompletion,
                     propertyReader, conditionAnnotations, logging, logger, multiThreadedScan, excludedAbstractions);
         }
 
         public DependencyInjectorConfigurationBuilder excludedAbstractions(Class<?> ...excludedAbstractions) {
             this.excludedAbstractions.addAll(Arrays.stream(excludedAbstractions).collect(Collectors.toSet()));
+            return this;
+        }
+
+        public DependencyInjectorConfigurationBuilder excludedDependencies(Class<?> ...excludedDependencies) {
+            this.excludedDependencies.addAll(Arrays.stream(excludedDependencies).collect(Collectors.toSet()));
             return this;
         }
 

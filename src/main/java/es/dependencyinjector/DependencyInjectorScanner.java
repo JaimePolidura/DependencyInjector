@@ -210,6 +210,7 @@ public final class DependencyInjectorScanner {
         return this.configuration.getAnnotations().stream()
                 .map(this.reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
+                .filter(dependency -> !configuration.getExcludedDependencies().contains(dependency))
                 .collect(Collectors.toSet());
     }
 
