@@ -134,6 +134,12 @@ public final class DependencyInjectorScanner {
 
         dependencyInjectorLogger.info("%s classes to be instantiated", classesAnnotated.size());
 
+        for (Class<?> aClass : classesAnnotated) {
+            System.out.println(aClass);
+        }
+        System.out.println("             ");
+        System.out.println("             ");
+
         for (Class<?> classAnnotatedWith : classesAnnotated){
             this.executor.execute(() -> runCheckedOrTerminate(() -> {
                 instantiateClass(classAnnotatedWith, classAnnotatedWith);
