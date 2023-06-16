@@ -70,7 +70,7 @@ public final class DependencyInjectorScanner {
             searchForAbstractions(loadingLatch);
 
             instantiateProvidedClasses(loadingLatch);
-            instanciateClasses(loadingLatch);
+            instantiateClasses(loadingLatch);
         });
 
         if(this.configuration.isWaitUntilCompletion()) {
@@ -126,19 +126,13 @@ public final class DependencyInjectorScanner {
     }
 
     @SneakyThrows
-    private void instanciateClasses(CountDownLatch loadingLatch) {
+    private void instantiateClasses(CountDownLatch loadingLatch) {
         dependencyInjectorLogger.info("STARTING WITH CLASSES\n");
 
         Set<Class<?>> classesAnnotated = this.getClassesAnnotated();
         CountDownLatch countDownLatch = new CountDownLatch(this.configuration.isWaitUntilCompletion() ? classesAnnotated.size() : 1);
 
         dependencyInjectorLogger.info("%s classes to be instantiated", classesAnnotated.size());
-
-        for (Class<?> aClass : classesAnnotated) {
-            System.out.println(aClass);
-        }
-        System.out.println("             ");
-        System.out.println("             ");
 
         for (Class<?> classAnnotatedWith : classesAnnotated){
             this.executor.execute(() -> runCheckedOrTerminate(() -> {
@@ -183,10 +177,10 @@ public final class DependencyInjectorScanner {
             saveDependency(newInstance);
 
             return newInstance;
-        }else {
-            return alreadyInstanced ?
-                    dependencies.get(classAnnotatedWith) :
-                    createInstanceAndSave(classAnnotatedWith);
+        }else if (doesntHaveEmptyConstructor){
+            return dependencies.get(classAnnotatedWith);
+        }else{ //Has an empty constructor
+            return createInstanceAndSave(classAnnotatedWith);
         }
     }
 
@@ -216,6 +210,7 @@ public final class DependencyInjectorScanner {
         return this.configuration.getAnnotations().stream()
                 .map(this.reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
+                .peek(System.out::println)
                 .filter(dependency -> !configuration.getExcludedDependencies().contains(dependency))
                 .collect(Collectors.toSet());
     }
