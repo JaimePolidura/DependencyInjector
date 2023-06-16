@@ -36,7 +36,6 @@ public class DependencyInjectorConfiguration {
     @Getter private final PropertyReader propertyReader;
     @Getter private final List<SupportedConditionAnnotation> conditionAnnotations;
     @Getter private final boolean logging;
-    @Getter private final Logger logger;
     @Getter private final boolean multiThreadedScan;
     @Getter private final Set<Class<?>> excludedAbstractions;
     @Getter private Reflections reflections;
@@ -83,7 +82,7 @@ public class DependencyInjectorConfiguration {
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(annotations, abstractions, excludedDependencies, dependenciesRepository,
                     abstractionsRepository, providersRepository, packageToScan, waitUntilCompletion,
-                    propertyReader, conditionAnnotations, logging, logger, multiThreadedScan, excludedAbstractions, reflections);
+                    propertyReader, conditionAnnotations, logging, multiThreadedScan, excludedAbstractions, reflections);
         }
 
         public DependencyInjectorConfigurationBuilder reflections(Reflections reflections) {
