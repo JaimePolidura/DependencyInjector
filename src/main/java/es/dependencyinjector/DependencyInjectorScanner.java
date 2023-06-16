@@ -19,6 +19,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.*;
@@ -207,9 +208,26 @@ public final class DependencyInjectorScanner {
     }
 
     private Set<Class<?>> getClassesAnnotated() {
+        System.out.println("   ");
+        System.out.println("   ");
+        System.out.println("----------------------------------------------------------------------------------------------------");
+
+        for (Class<? extends Annotation> annotation : configuration.getAnnotations()) {
+            System.out.println(annotation.getName());
+
+            for (Class<?> clazz : reflections.getTypesAnnotatedWith(annotation)) {
+                System.out.println("      " + clazz.getName());
+            }
+        }
+
+        System.out.println("----------------------------------------------------------------------------------------------------");
+        System.out.println("   ");
+        System.out.println("   ");
+
         return this.configuration.getAnnotations().stream()
                 .map(this.reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
+                .peek(System.out::println)
                 .filter(dependency -> !configuration.getExcludedDependencies().contains(dependency))
                 .collect(Collectors.toSet());
     }
