@@ -15,6 +15,7 @@ import es.dependencyinjector.dependencies.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -38,6 +39,7 @@ public class DependencyInjectorConfiguration {
     @Getter private final Logger logger;
     @Getter private final boolean multiThreadedScan;
     @Getter private final Set<Class<?>> excludedAbstractions;
+    @Getter private Reflections reflections;
 
     public static DependencyInjectorConfigurationBuilder builder() {
         return new DependencyInjectorConfigurationBuilder();
@@ -58,6 +60,7 @@ public class DependencyInjectorConfiguration {
         private boolean logging;
         private Logger logger;
         private boolean multiThreadedScan;
+        private Reflections reflections;
 
         public DependencyInjectorConfigurationBuilder() {
             this.logging = false;
@@ -80,7 +83,12 @@ public class DependencyInjectorConfiguration {
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(annotations, abstractions, excludedDependencies, dependenciesRepository,
                     abstractionsRepository, providersRepository, packageToScan, waitUntilCompletion,
-                    propertyReader, conditionAnnotations, logging, logger, multiThreadedScan, excludedAbstractions);
+                    propertyReader, conditionAnnotations, logging, logger, multiThreadedScan, excludedAbstractions, reflections);
+        }
+
+        public DependencyInjectorConfigurationBuilder reflections(Reflections reflections) {
+            this.reflections = reflections;
+            return this;
         }
 
         public DependencyInjectorConfigurationBuilder excludedAbstractions(Class<?> ...excludedAbstractions) {

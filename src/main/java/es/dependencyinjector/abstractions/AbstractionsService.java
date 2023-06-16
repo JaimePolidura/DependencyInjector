@@ -19,7 +19,9 @@ public final class AbstractionsService {
     }
 
     public boolean isAbstraction(Class<?> clazz) {
-        return ReflectionUtils.isAbstraction(clazz);
+        return ReflectionUtils.isAbstraction(clazz) &&
+                !configuration.getExcludedAbstractions().contains(clazz) &&
+                clazz != Object.class;
     }
 
     public boolean isImplementation(Class<?> clazz) {

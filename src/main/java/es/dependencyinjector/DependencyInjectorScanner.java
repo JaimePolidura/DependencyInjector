@@ -50,10 +50,10 @@ public final class DependencyInjectorScanner {
         this.executor = configuration.isMultiThreadedScan() ?
                 Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()) :
                 new FakeExecutorService();
-        this.reflections = new Reflections(new ConfigurationBuilder()
+        this.reflections = configuration.getReflections() == null ? new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(configuration.getPackageToScan()))
                 .setScanners(new TypeAnnotationsScanner(),
-                        new SubTypesScanner(), new MethodAnnotationsScanner()));
+                        new SubTypesScanner(), new MethodAnnotationsScanner())) : configuration.getReflections();
         this.providersScanner = new ProvidersScanner(reflections, configuration, dependencyInjectorLogger);
         this.abstractionsScanner = new AbstractionsScanner(dependencyInjectorLogger, configuration, reflections);
         this.dependencyConditionService = new DependencyConditionService(configuration, this);
@@ -70,7 +70,7 @@ public final class DependencyInjectorScanner {
             searchForAbstractions(loadingLatch);
 
             instantiateProvidedClasses(loadingLatch);
-            instanciateClasses(loadingLatch);
+            instantiateClasses(loadingLatch);
         });
 
         if(this.configuration.isWaitUntilCompletion()) {
@@ -126,7 +126,7 @@ public final class DependencyInjectorScanner {
     }
 
     @SneakyThrows
-    private void instanciateClasses(CountDownLatch loadingLatch) {
+    private void instantiateClasses(CountDownLatch loadingLatch) {
         dependencyInjectorLogger.info("STARTING WITH CLASSES\n");
 
         Set<Class<?>> classesAnnotated = this.getClassesAnnotated();
@@ -177,10 +177,10 @@ public final class DependencyInjectorScanner {
             saveDependency(newInstance);
 
             return newInstance;
-        }else {
-            return alreadyInstanced ?
-                    dependencies.get(classAnnotatedWith) :
-                    createInstanceAndSave(classAnnotatedWith);
+        }else if (doesntHaveEmptyConstructor){
+            return dependencies.get(classAnnotatedWith);
+        }else{ //Has an empty constructor
+            return createInstanceAndSave(classAnnotatedWith);
         }
     }
 
