@@ -38,7 +38,7 @@ public final class InMemoryDependenciesRepository implements DependenciesReposit
     @Override
     public <T> Optional<T> filterByImplementsInterfaceWithGeneric(Class<T> interfaceToCheck, Class<?> genericType) {
         return filterByImplementsInterface(interfaceToCheck).stream()
-                .filter(implementation -> hasInterfaceWithGenericType((Class<?>) implementation, genericType))
+                .filter(implementation -> hasInterfaceWithGenericType(implementation.getClass(), genericType))
                 .findFirst();
     }
 

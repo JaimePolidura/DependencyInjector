@@ -20,7 +20,6 @@ import org.reflections.Reflections;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -35,7 +34,7 @@ public class DependencyInjectorConfiguration {
     @Getter private final boolean waitUntilCompletion;
     @Getter private final PropertyReader propertyReader;
     @Getter private final List<SupportedConditionAnnotation> conditionAnnotations;
-    @Getter private final boolean logging;
+    @Getter private final boolean useDebugLogging;
     @Getter private final boolean multiThreadedScan;
     @Getter private final Set<Class<?>> excludedAbstractions;
     @Getter private Reflections reflections;
@@ -56,13 +55,12 @@ public class DependencyInjectorConfiguration {
         private String packageToScan;
         private boolean waitUntilCompletion;
         private PropertyReader propertyReader;
-        private boolean logging;
-        private Logger logger;
         private boolean multiThreadedScan;
         private Reflections reflections;
+        private boolean useDebugLogging;
 
         public DependencyInjectorConfigurationBuilder() {
-            this.logging = false;
+            this.useDebugLogging = false;
             this.multiThreadedScan = true;
             this.excludedAbstractions = new HashSet<>();
             this.dependenciesRepository = new InMemoryDependenciesRepository();
@@ -82,11 +80,16 @@ public class DependencyInjectorConfiguration {
         public DependencyInjectorConfiguration build() {
             return new DependencyInjectorConfiguration(annotations, abstractions, excludedDependencies, dependenciesRepository,
                     abstractionsRepository, providersRepository, packageToScan, waitUntilCompletion,
-                    propertyReader, conditionAnnotations, logging, multiThreadedScan, excludedAbstractions, reflections);
+                    propertyReader, conditionAnnotations, useDebugLogging, multiThreadedScan, excludedAbstractions, reflections);
         }
 
         public DependencyInjectorConfigurationBuilder reflections(Reflections reflections) {
             this.reflections = reflections;
+            return this;
+        }
+
+        public DependencyInjectorConfigurationBuilder useDebugLogging() {
+            this.useDebugLogging = true;
             return this;
         }
 
@@ -107,12 +110,6 @@ public class DependencyInjectorConfiguration {
 
         public DependencyInjectorConfigurationBuilder multiThreadedScan() {
             this.multiThreadedScan = true;
-            return this;
-        }
-
-        public DependencyInjectorConfigurationBuilder logging(Logger logger) {
-            this.logging = true;
-            this.logger = logger;
             return this;
         }
 
