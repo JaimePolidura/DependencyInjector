@@ -24,7 +24,7 @@ public final class Main {
                 .dependenciesRepository(dependencies)
                 .propertyReader(new FakePropertyReader())
                 .build());
-        
+
         Optional<UseCaseHandler> optionalHandler = dependencies.filterByImplementsInterfaceWithGeneric(UseCaseHandler.class, ParametrosA.class);
 
         Assertions.assertThat(optionalHandler)
