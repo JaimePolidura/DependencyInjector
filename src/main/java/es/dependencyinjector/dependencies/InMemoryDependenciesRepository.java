@@ -1,5 +1,7 @@
 package es.dependencyinjector.dependencies;
 
+import es.dependencyinjector.dependencies.annotations.Repository;
+
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,8 +23,6 @@ public final class InMemoryDependenciesRepository implements DependenciesReposit
             incrementMapList(annotatedWithIndex, annotationInClass.getClass(), instance, LinkedList::new);
         });
         findInterfacesInClass(instanceClass).forEach(interfaceInClass -> {
-            System.out.println("    Found interface " + interfaceInClass.getName() + " for " + instanceClass.getName());
-
             incrementMapList(implementsInterfaceIndex, interfaceInClass, instance, LinkedList::new);
         });
     }

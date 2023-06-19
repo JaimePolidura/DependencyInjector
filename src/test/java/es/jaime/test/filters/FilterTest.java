@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-public final class Main {
+public final class FilterTest {
     @Test
     public void shouldFilter() throws Exception {
         DependenciesRepository dependencies = new InMemoryDependenciesRepository();
