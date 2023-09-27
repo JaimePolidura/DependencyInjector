@@ -104,7 +104,7 @@ public class DateFormatterProvider {
 DependenciesRepository dependencies = new InMemoryDependenciesRepository();
 
 DependencyInjectorBootstrapper.init(DependencyInjectorConfiguration.builder()
-        .packageToScan("es.dependencyinjector.caca")
+        .packageToScan("your package")
         .waitUntilCompletion()
         .dependenciesRepository(dependencies)
         .build());
@@ -119,7 +119,7 @@ interface Abstraction {  void printInConsole(); }
 public class ImplementationA implements Abstraction {
     @Override
     public void printInConsole() {
-        System.out.println("Im ImplementationA");
+        System.out.println("I'm ImplementationA");
     }
 }
 
@@ -127,7 +127,7 @@ public class ImplementationA implements Abstraction {
 public class ImplementationB implements Abstraction {
     @Override
     public void printInConsole() {
-        System.out.println("Im ImplementationB");
+        System.out.println("I'm ImplementationB");
     }
 }
 ```
@@ -136,24 +136,24 @@ public class ImplementationB implements Abstraction {
 DependenciesRepository dependencies = new InMemoryDependenciesRepository();
 
 DependencyInjectorBootstrapper.init(DependencyInjectorConfiguration.builder()
-        .packageToScan("es.dependencyinjector.caca")
+        .packageToScan("your package")
         .waitUntilCompletion()
         .dependenciesRepository(dependencies)
         .build());
 
 dependencies.filterByImplementsInterfaceWithGeneric(Abstraction.class, String.class).ifPresent(implementation -> {
-    implementation.printInConsole(); //Will print "Im ImplementationA With String"
+    implementation.printInConsole(); //Will print "I'm ImplementationA With String"
 });
 
 interface Abstraction<T> {
-void printInConsole();
+    void printInConsole();
 }
 
 @Service
 public class ImplementationA implements Abstraction<String> {
     @Override
     public void printInConsole() {
-        System.out.println("Im ImplementationA With String");
+        System.out.println("I'm ImplementationA With String");
     }
 }
 
@@ -161,7 +161,7 @@ public class ImplementationA implements Abstraction<String> {
 public class ImplementationB implements Abstraction<Integer> {
     @Override
     public void printInConsole() {
-        System.out.println("Im ImplementationB with Integer");
+        System.out.println("I'm ImplementationB with Integer");
     }
 }
 ```
