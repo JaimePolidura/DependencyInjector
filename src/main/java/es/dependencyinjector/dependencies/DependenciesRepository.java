@@ -14,6 +14,4 @@ public interface DependenciesRepository {
     <T> List<T> filterByImplementsInterface(Class<T> interfaceToCheck);
 
     <T> Optional<T> filterByImplementsInterfaceWithGeneric(Class<T> interfaceToCheck, Class<?> genericType);
-
-    List<Object> filterByAnnotatedWith(Class<? extends Annotation> annotationToCheck);
 }

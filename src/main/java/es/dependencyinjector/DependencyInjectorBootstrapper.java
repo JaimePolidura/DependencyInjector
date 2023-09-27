@@ -29,7 +29,7 @@ public final class DependencyInjectorBootstrapper {
         DependenciesRepository dependenciesRepository = dependencyInjector.configuration.getDependenciesRepository();
         AbstractionsRepository abstractionsRepository = dependencyInjector.configuration.getAbstractionsRepository();
         ProvidersRepository providersRepository = dependencyInjector.configuration.getProvidersRepository();
-
+        
         abstractionsRepository.add(DependenciesRepository.class, dependenciesRepository.getClass());
         abstractionsRepository.add(AbstractionsRepository.class, abstractionsRepository.getClass());
         abstractionsRepository.add(ProvidersRepository.class, providersRepository.getClass());
@@ -41,6 +41,7 @@ public final class DependencyInjectorBootstrapper {
         dependenciesRepository.add(dependencyInjector.getClass(), dependenciesRepository);
         dependenciesRepository.add(configuration.getClass(), configuration);
         dependenciesRepository.add(DependenciesExecutor.class, new DependenciesExecutor(dependenciesRepository));
+        dependenciesRepository.add(DependenciesRepository.class, dependenciesRepository);
 
         dependencyInjector.startScanning();
 
