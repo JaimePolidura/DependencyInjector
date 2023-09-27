@@ -20,9 +20,6 @@
 ### Basic usage
 
 ```java
-
-import es.dependencyinjector.dependencies.annotations.Service;
-
 DependenciesRepository dependencies = new InMemoryDependenciesRepository();
 
 DependencyInjectorBootstrapper.init(DependencyInjectorConfiguration.builder()
