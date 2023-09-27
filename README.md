@@ -3,7 +3,18 @@
 ### Set up
 
 ```xml
+<repositories>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
+</repositories>
 
+<dependency>
+    <groupId>com.github.JaimePolidura</groupId>
+    <artifactId>DependencyInjector</artifactId>
+    <version>1.1.25</version>
+</dependency>
 ```
 
 ### Basic usage
