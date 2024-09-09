@@ -1,4 +1,5 @@
 # DependencyInjector
+My own dependecy injection framework similar to SpringBoot.
 
 ### Set up
 
